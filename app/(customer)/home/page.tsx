@@ -1,20 +1,23 @@
-// app/(customer)/home/page.tsx
 "use client";
 
 import {
-    Container, Stack,
-    Title,
-    Text,
-    Button, Image,
-    Box
+  BlogSection,
+  BrandShowcase,
+  CategoryShowcase,
+  FeaturedProductsSection,
+  NewsletterSection,
+  PromotionalBanner,
+  ValueProposition,
+} from "@/components/customer";
+import {
+  Container,
+  Stack,
+  Title,
+  Text,
+  Button,
+  Image,
+  Box,
 } from "@mantine/core";
-import { CategoryShowcase } from "@/components/customer/CategoryShowcase";
-import { ValueProposition } from "@/components/customer/ValueProposition";
-import { FeaturedProductsSection } from "@/components/customer/FeaturedProductsSection";
-import { PromotionalBanner } from "@/components/customer/PromotionalBanner";
-import { BrandShowcase } from "@/components/customer/BrandShowcase";
-import { BlogSection } from "@/components/customer/BlogSection";
-import { NewsletterSection } from "@/components/customer/NewsletterSection";
 
 export default function HomePage() {
   return (

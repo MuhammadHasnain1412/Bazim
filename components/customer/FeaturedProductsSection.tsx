@@ -1,53 +1,10 @@
 import { Container, Stack, Title, Grid, GridCol, Group, Button } from "@mantine/core";
 import Link from "next/link";
 import { ProductCard } from "./ProductCard";
+import { products } from "@/lib/products";
 
-const featuredProducts = [
-  {
-    id: "1",
-    name: "Premium Cotton Shirt",
-    price: 89.99,
-    originalPrice: 120.0,
-    image: "/images/testimg.jpeg",
-    category: "Shirts",
-    inStock: true,
-    colors: ["#FFFFFF", "#000000", "#4169E1"],
-    badge: "New",
-    discount: 25,
-  },
-  {
-    id: "2",
-    name: "Designer Blazer",
-    price: 250.0,
-    image: "/images/testimg.jpeg",
-    category: "Blazers",
-    inStock: true,
-    colors: ["#000000", "#8B4513"],
-    badge: "Exclusive",
-  },
-  {
-    id: "3",
-    name: "Casual Denim Jeans",
-    price: 79.99,
-    originalPrice: 99.99,
-    image: "/images/testimg.jpeg",
-    category: "Jeans",
-    inStock: true,
-    colors: ["#4169E1", "#000000"],
-    discount: 20,
-  },
-  {
-    id: "4",
-    name: "Luxury Watch",
-    price: 450.0,
-    originalPrice: 600.0,
-    image: "/images/testimg.jpeg",
-    category: "Accessories",
-    inStock: true,
-    colors: ["#C0C0C0", "#FFD700"],
-    discount: 25,
-  },
-];
+// Get first 4 products for featured section
+const featuredProducts = products.slice(0, 4);
 
 export function FeaturedProductsSection() {
   return (

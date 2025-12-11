@@ -19,6 +19,7 @@ import {
 import { IconMinus, IconPlus, IconHeart, IconShoppingCart } from "@tabler/icons-react";
 import { useState } from "react";
 import { ProductCard } from "./ProductCard";
+import { products } from "@/lib/products";
 
 interface ProductDetailProps {
   product: {
@@ -45,33 +46,12 @@ export function ProductDetail({ product }: ProductDetailProps) {
   const [selectedSize, setSelectedSize] = useState(product.sizes[1]);
   const [quantity, setQuantity] = useState(1);
 
-  const relatedProducts = [
-    {
-      id: "2",
-      name: "Men's Track Jacket",
-      price: 45.0,
-      image: "https://placehold.co/300x300/4169E1/ffffff?text=Jacket",
-      category: "Outerwear",
-      inStock: true,
-      colors: ["#4169E1", "#000000"],
-      badge: "New",
-    },
-    {
-      id: "3",
-      name: "Bullet Puffer Jacket",
-      price: 85.0,
-      originalPrice: 105.0,
-      image: "https://placehold.co/300x300/FF6347/ffffff?text=Puffer",
-      category: "Winter",
-      inStock: true,
-      colors: ["#FF6347", "#000000"],
-      discount: 20,
-    },
-  ];
+  const relatedProducts = products
+    .filter(p => p.id !== product.id)
+    .slice(0, 2);
 
   return (
     <Container size="xl" py="xl">
-      {/* Breadcrumbs */}
       <Group gap="xs" mb="lg">
         <Text size="sm" c="gray.6">Home</Text>
         <Text size="sm" c="gray.6">/</Text>
@@ -80,7 +60,6 @@ export function ProductDetail({ product }: ProductDetailProps) {
         <Text size="sm" c="gray.6">Shop Details</Text>
       </Group>
 
-      {/* Product Main Section */}
       <Grid>
         <GridCol span={{ base: 12, md: 6 }}>
           <Image src={product.image} alt={product.name} radius="md" />
@@ -100,11 +79,11 @@ export function ProductDetail({ product }: ProductDetailProps) {
 
             <Group gap="xs" align="baseline">
               <Text size="xl" fw={600}>
-                ${product.price.toFixed(2)}
+                Rs. {product.price.toFixed(2)}
               </Text>
               {product.originalPrice && (
                 <Text td="line-through" size="lg" c="gray.5">
-                  ${product.originalPrice.toFixed(2)}
+                  Rs. {product.originalPrice.toFixed(2)}
                 </Text>
               )}
             </Group>
@@ -116,7 +95,6 @@ export function ProductDetail({ product }: ProductDetailProps) {
 
             <Text c="gray.6">{product.description}</Text>
 
-            {/* Size Selection */}
             <Stack gap="sm">
               <Text fw={500}>Select Size</Text>
               <Group gap="xs">
@@ -155,24 +133,60 @@ export function ProductDetail({ product }: ProductDetailProps) {
             </Stack>
 
             {/* Quantity and Add to Cart */}
-            <Group gap="sm">
-              <NumberInput
-                value={quantity}
-                onChange={(value) => setQuantity(value as number)}
-                min={1}
-                max={10}
-                w={100}
-                rightSection={
-                  <Group gap={0}>
-                    <ActionIcon size="sm" onClick={() => setQuantity(Math.max(1, quantity - 1))}>
-                      <IconMinus size={14} />
-                    </ActionIcon>
-                    <ActionIcon size="sm" onClick={() => setQuantity(Math.min(10, quantity + 1))}>
-                      <IconPlus size={14} />
-                    </ActionIcon>
-                  </Group>
-                }
-              />
+            <Group gap="sm" align="center">
+              <div 
+                style={{ 
+                  display: 'flex', 
+                  alignItems: 'center',
+                  border: '1px solid #dee2e6',
+                  borderRadius: '4px',
+                  overflow: 'hidden',
+                  width: '100px'
+                }}
+              >
+                <ActionIcon 
+                  size="sm" 
+                  variant="subtle"
+                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                  style={{ 
+                    border: 'none',
+                    borderRadius: '0',
+                    height: '36px'
+                  }}
+                >
+                  <IconMinus size={14} />
+                </ActionIcon>
+                <div 
+                  style={{
+                    flex: 1,
+                    textAlign: 'center',
+                    padding: '0 8px',
+                    fontSize: '14px',
+                    fontWeight: 500,
+                    borderLeft: '1px solid #dee2e6',
+                    borderRight: '1px solid #dee2e6',
+                    height: '36px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: '#fff'
+                  }}
+                >
+                  {quantity}
+                </div>
+                <ActionIcon 
+                  size="sm" 
+                  variant="subtle"
+                  onClick={() => setQuantity(Math.min(10, quantity + 1))}
+                  style={{ 
+                    border: 'none',
+                    borderRadius: '0',
+                    height: '36px'
+                  }}
+                >
+                  <IconPlus size={14} />
+                </ActionIcon>
+              </div>
               <Button
                 leftSection={<IconShoppingCart size={18} />}
                 size="lg"
