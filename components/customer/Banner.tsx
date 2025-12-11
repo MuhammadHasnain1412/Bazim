@@ -1,46 +1,86 @@
 "use client";
 
-import { Container, Box, Stack, Title, Text, Button, Image } from "@mantine/core";
+import {
+  Box,
+  Button,
+  Container,
+  Group,
+  Text,
+  Title,
+  Image,
+} from "@mantine/core";
 
 export function Banner() {
   return (
-    <Box style={{ position: "relative" }}>
-      <Container size="xl" p={0}>
-        <Box h={600} style={{ position: "relative" }}>
-          <Image
-            src="https://picsum.photos/1920/600?random=hero"
-            alt="Hero"
-            w="100%"
-            h="100%"
-            style={{ objectFit: "cover" }}
-          />
-          <Box
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              background: "linear-gradient(135deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 100%)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <Stack align="center" gap="xl" c="white">
-              <Title order={1} size={64} fw={800} ta="center">
-                The New Season Collection
-              </Title>
-              <Text size="xl" ta="center" maw={600}>
-                Discover our latest premium fashion pieces designed for the modern gentleman
-              </Text>
-              <Button size="xl" bg="orange.6" c="white" radius="md">
-                Shop Now
-              </Button>
-            </Stack>
-          </Box>
-        </Box>
+    <Box
+      style={{
+        background: "linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%)",
+        color: "white",
+        padding: "4rem 0",
+        position: "relative",
+        overflow: "hidden",
+        width: "100vw",
+        marginLeft: "calc(-50vw + 50%)",
+      }}
+    >
+      <Container size="xl">
+        <Group align="center" justify="space-between" gap="xl">
+          {/* Left Side - Text Content */}
+          <div style={{ flex: 1, maxWidth: "500px" }}>
+            <Text size="lg" c="gray.7" fw={500} mb="sm">
+              New Arrival
+            </Text>
+            <Title order={1} size={48} fw={800} c="dark" mb="lg">
+              Hot Fashion Collection
+            </Title>
+            <Button
+              size="lg"
+              bg="dark"
+              c="white"
+              radius="md"
+              style={{ alignSelf: "flex-start" }}
+            >
+              Shop Now
+            </Button>
+          </div>
+
+          {/* Right Side - Image */}
+          <div style={{ flex: 1, display: "flex", justifyContent: "flex-end" }}>
+            <Image
+              src="/images/banner-model.png"
+              alt="Fashion Model"
+              width={400}
+              height={400}
+              fallbackSrc="https://placehold.co/400x400/e9ecef/666?text=Model"
+              style={{ objectFit: "contain" }}
+            />
+          </div>
+        </Group>
       </Container>
+
+      {/* Background Decorations */}
+      <div
+        style={{
+          position: "absolute",
+          top: "20%",
+          right: "10%",
+          width: "100px",
+          height: "100px",
+          borderRadius: "50%",
+          background: "rgba(255, 255, 255, 0.1)",
+        }}
+      />
+      <div
+        style={{
+          position: "absolute",
+          bottom: "30%",
+          left: "5%",
+          width: "150px",
+          height: "150px",
+          borderRadius: "50%",
+          background: "rgba(255, 255, 255, 0.05)",
+        }}
+      />
     </Box>
   );
 }
