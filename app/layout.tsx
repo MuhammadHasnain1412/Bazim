@@ -1,5 +1,8 @@
 import "@mantine/core/styles.css";
+import "@mantine/notifications/styles.css";
 import { ColorSchemeScript, MantineProvider } from "@mantine/core";
+import { Notifications } from "@mantine/notifications";
+import { Providers } from "./provider";
 
 export const metadata = {
   title: "Bazim Clothing",
@@ -17,7 +20,10 @@ export default function RootLayout({
         <ColorSchemeScript defaultColorScheme="light" />
       </head>
       <body>
-        <MantineProvider defaultColorScheme="light">{children}</MantineProvider>
+        <MantineProvider defaultColorScheme="light">
+          <Notifications position="top-right" />
+          <Providers>{children}</Providers>
+        </MantineProvider>
       </body>
     </html>
   );

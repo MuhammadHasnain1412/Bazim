@@ -1,11 +1,9 @@
 import { Box, Container, SimpleGrid, Stack, Title, Text, Group, ActionIcon, Divider, Input, Button } from "@mantine/core";
 import {
-  IconBrandFacebook,
-  IconBrandTwitter,
   IconBrandInstagram,
-  IconBrandYoutube,
   IconMail,
 } from "@tabler/icons-react";
+import Link from "next/link";
 
 export function Footer() {
   return (
@@ -21,50 +19,68 @@ export function Footer() {
                 Your premium destination for men's fashion. Quality clothing for the modern gentleman.
               </Text>
               <Group gap="sm">
-                <ActionIcon variant="subtle" color="gray" c="white">
-                  <IconBrandFacebook size={18} />
-                </ActionIcon>
-                <ActionIcon variant="subtle" color="gray" c="white">
-                  <IconBrandTwitter size={18} />
-                </ActionIcon>
-                <ActionIcon variant="subtle" color="gray" c="white">
+                <ActionIcon 
+                  variant="subtle" 
+                  color="gray" 
+                  c="white"
+                  component="a"
+                  href="https://www.instagram.com/bazim_fabrics/?__pwa=1"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   <IconBrandInstagram size={18} />
-                </ActionIcon>
-                <ActionIcon variant="subtle" color="gray" c="white">
-                  <IconBrandYoutube size={18} />
                 </ActionIcon>
               </Group>
             </Stack>
 
-            {/* Quick Links */}
+            {/* Shop Links */}
             <Stack gap="md">
-              <Text fw={600} c="white">Quick Links</Text>
-              <Text size="sm" c="gray.4" style={{ cursor: "pointer" }}>
-                About Us
-              </Text>
-              <Text size="sm" c="gray.4" style={{ cursor: "pointer" }}>
-                Careers
-              </Text>
-              <Text size="sm" c="gray.4" style={{ cursor: "pointer" }}>
-                Press
-              </Text>
-              <Text size="sm" c="gray.4" style={{ cursor: "pointer" }}>
-                Blog
-              </Text>
+              <Text fw={600} c="white">Shop</Text>
+              <Link href="/products" style={{ textDecoration: 'none', color: 'inherit' }}>
+                <Text size="sm" c="gray.4" style={{ cursor: "pointer" }}>
+                  All Products
+                </Text>
+              </Link>
+              <Link href="/products?featured=true" style={{ textDecoration: 'none', color: 'inherit' }}>
+                <Text size="sm" c="gray.4" style={{ cursor: "pointer" }}>
+                  New Arrivals
+                </Text>
+              </Link>
+              <Link href="/cart" style={{ textDecoration: 'none', color: 'inherit' }}>
+                <Text size="sm" c="gray.4" style={{ cursor: "pointer" }}>
+                  Shopping Cart
+                </Text>
+              </Link>
+              <Link href="/wishlist" style={{ textDecoration: 'none', color: 'inherit' }}>
+                <Text size="sm" c="gray.4" style={{ cursor: "pointer" }}>
+                  Wishlist
+                </Text>
+              </Link>
             </Stack>
 
             {/* Customer Service */}
             <Stack gap="md">
               <Text fw={600} c="white">Customer Service</Text>
-              <Text size="sm" c="gray.4" style={{ cursor: "pointer" }}>
-                FAQ
-              </Text>
-              <Text size="sm" c="gray.4" style={{ cursor: "pointer" }}>
-                Shipping Info
-              </Text>
-              <Text size="sm" c="gray.4" style={{ cursor: "pointer" }}>
-                Returns
-              </Text>
+              <Link href="/checkout" style={{ textDecoration: 'none', color: 'inherit' }}>
+                <Text size="sm" c="gray.4" style={{ cursor: "pointer" }}>
+                  Checkout
+                </Text>
+              </Link>
+              <Link href="/cart" style={{ textDecoration: 'none', color: 'inherit' }}>
+                <Text size="sm" c="gray.4" style={{ cursor: "pointer" }}>
+                  Shopping Cart
+                </Text>
+              </Link>
+              <Link href="/wishlist" style={{ textDecoration: 'none', color: 'inherit' }}>
+                <Text size="sm" c="gray.4" style={{ cursor: "pointer" }}>
+                  Wishlist
+                </Text>
+              </Link>
+              <Link href="/products" style={{ textDecoration: 'none', color: 'inherit' }}>
+                <Text size="sm" c="gray.4" style={{ cursor: "pointer" }}>
+                  Order Tracking
+                </Text>
+              </Link>
               <Text size="sm" c="gray.4" style={{ cursor: "pointer" }}>
                 Contact Us
               </Text>
@@ -91,7 +107,7 @@ export function Footer() {
 
           <Group justify="space-between" align="center">
             <Text size="sm" c="gray.4">
-              © 2024 BAZIM. All rights reserved.
+              2024 BAZIM. All rights reserved.
             </Text>
             <Group gap="md">
               <Text size="sm" c="gray.4">Privacy Policy</Text>

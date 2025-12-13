@@ -17,9 +17,8 @@ import {
   Tabs,
 } from "@mantine/core";
 import { IconMinus, IconPlus, IconHeart, IconShoppingCart } from "@tabler/icons-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ProductCard } from "./ProductCard";
-import { products } from "@/lib/products";
 
 interface ProductDetailProps {
   product: {
@@ -45,10 +44,44 @@ export function ProductDetail({ product }: ProductDetailProps) {
   const [selectedColor, setSelectedColor] = useState(product.colors[0]);
   const [selectedSize, setSelectedSize] = useState(product.sizes[1]);
   const [quantity, setQuantity] = useState(1);
+  const [relatedProducts, setRelatedProducts] = useState<any[]>([]);
 
-  const relatedProducts = products
-    .filter(p => p.id !== product.id)
-    .slice(0, 2);
+  useEffect(() => {
+    const fetchRelatedProducts = async () => {
+      try {
+        const response = await fetch('/api/products');
+        const data = await response.json();
+        
+        if (data.products) {
+          // Get products excluding current one, limit to 2
+          const related = data.products
+            .filter((p: any) => p.id !== product.id)
+            .slice(0, 2)
+            .map((p: any) => {
+              const images = JSON.parse(p.images || '[]');
+              const colors = JSON.parse(p.colors || '[]');
+              
+              return {
+                id: p.id,
+                name: p.name,
+                price: p.price,
+                image: images[0] || '/images/testimg.jpeg',
+                category: p.category.name,
+                inStock: p.stock > 0,
+                colors: colors,
+                badge: p.featured ? 'Featured' : undefined,
+              };
+            });
+          
+          setRelatedProducts(related);
+        }
+      } catch (error) {
+        console.error('Failed to fetch related products:', error);
+      }
+    };
+
+    fetchRelatedProducts();
+  }, [product.id]);
 
   return (
     <Container size="xl" py="xl">
@@ -79,11 +112,11 @@ export function ProductDetail({ product }: ProductDetailProps) {
 
             <Group gap="xs" align="baseline">
               <Text size="xl" fw={600}>
-                Rs. {product.price.toFixed(2)}
+                Rs {Number(product.price).toFixed(2)}
               </Text>
               {product.originalPrice && (
                 <Text td="line-through" size="lg" c="gray.5">
-                  Rs. {product.originalPrice.toFixed(2)}
+                  Rs {Number(product.originalPrice).toFixed(2)}
                 </Text>
               )}
             </Group>

@@ -1,10 +1,10 @@
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "mysql"
+  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -38,7 +38,7 @@ model Product {
   fabricType  String
   fabricGSM   String
   designType  String
-  images      String   @db.Text
+  images      Image[]
   colors      String   @db.Text
   sizes       String   @db.Text
   featured    Boolean  @default(false)
@@ -61,6 +61,19 @@ model Category {
   slug      String    @unique
   products  Product[]
   createdAt DateTime  @default(now())
+}
+
+model Image {
+  id        String   @id @default(cuid())
+  filename  String
+  mimeType  String
+  data      Bytes    @db.LongBlob
+  size      Int
+  productId String?
+  product   Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@index([productId])
 }
 
 model Review {
