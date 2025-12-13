@@ -54,7 +54,7 @@ export async function GET(request: NextRequest) {
 
     // Group by category
     const categoryData = products.reduce((acc: any, product) => {
-      const categoryName = product.category.name;
+      const categoryName = product.category?.name || "Uncategorized";
       const salesItem = categorySales.find(item => item.productId === product.id);
       const quantity = salesItem?._sum.quantity || 0;
       

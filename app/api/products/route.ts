@@ -64,17 +64,12 @@ export async function POST(request: NextRequest) {
         description: data.description,
         price: data.price,
         stock: data.stock,
-        categoryId: data.categoryId,
         fabricType: data.fabricType,
         fabricGSM: data.fabricGSM,
         designType: data.designType,
-        images: JSON.stringify(data.images),
         colors: JSON.stringify(data.colors),
         sizes: JSON.stringify(data.sizes),
         featured: data.featured || false,
-      },
-      include: {
-        category: true,
       },
     });
 
