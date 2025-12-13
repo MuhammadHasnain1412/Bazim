@@ -67,7 +67,7 @@ model Image {
   id        String   @id @default(cuid())
   filename  String
   mimeType  String
-  data      Bytes    @db.LongBlob
+  data      Bytes    @db.ByteA
   size      Int
   productId String?
   product   Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
