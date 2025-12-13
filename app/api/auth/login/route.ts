@@ -7,6 +7,11 @@ export async function POST(request: NextRequest) {
   try {
     const { email, password } = await request.json();
 
+    if (!process.env.DATABASE_URL) {
+      console.error("DATABASE_URL is not configured");
+      return NextResponse.json({ error: "Database configuration error" }, { status: 500 });
+    }
+
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) {
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
@@ -29,6 +34,7 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
+    console.error("Login error:", error);
     return NextResponse.json({ error: "Login failed" }, { status: 500 });
   }
 }

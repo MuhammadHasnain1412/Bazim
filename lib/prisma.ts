@@ -4,8 +4,6 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
-console.log('DATABASE_URL in lib/prisma.ts:', process.env.DATABASE_URL);
-
 export const prisma = globalForPrisma.prisma ?? new PrismaClient({
   datasources: {
     db: {
