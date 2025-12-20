@@ -36,10 +36,7 @@ export function Navbar() {
         <filter id="remove-white" colorInterpolationFilters="sRGB">
           <feColorMatrix
             type="matrix"
-            values="1 0 0 0 0
-                    0 1 0 0 0
-                    0 0 1 0 0
-                    -1 -1 -1 3 0"
+            values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 -1 -1 -1 3 0"
           />
         </filter>
       </svg>

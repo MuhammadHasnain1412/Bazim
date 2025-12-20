@@ -127,10 +127,10 @@ export default function AdminOrdersPage() {
                 <Table.Td>
                   <Stack gap={0}>
                     <Text size="sm" fw={500}>
-                      {order.user?.name || order.shippingName}
+                      {order.shippingName || order.user?.name || "Guest"}
                     </Text>
                     <Text size="xs" c="dimmed">
-                      {order.user?.email}
+                      {order.user?.email || "Guest Order"}
                     </Text>
                   </Stack>
                 </Table.Td>

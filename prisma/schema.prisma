@@ -4,7 +4,6 @@ generator client {
 
 datasource db {
   provider = "mysql"
-  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -27,24 +26,24 @@ enum Role {
 }
 
 model Product {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   name        String
-  slug        String   @unique
-  description String   @db.Text
-  price       Decimal  @db.Decimal(10, 2)
-  stock       Int      @default(0)
+  slug        String    @unique
+  description String    @db.Text
+  price       Decimal   @db.Decimal(10, 2)
+  stock       Int       @default(0)
   category    Category? @relation(fields: [categoryId], references: [id])
   categoryId  String?
   fabricType  String
   fabricGSM   String
   designType  String
   images      Image[]
-  colors      String   @db.Text
-  sizes       String   @db.Text
-  featured    Boolean  @default(false)
-  viewCount   Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  colors      String    @db.Text
+  sizes       String    @db.Text
+  featured    Boolean   @default(false)
+  viewCount   Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   reviews       Review[]
   cartItems     CartItem[]
@@ -117,8 +116,8 @@ model WishlistItem {
 
 model Order {
   id              String      @id @default(cuid())
-  userId          String
-  user            User        @relation(fields: [userId], references: [id])
+  userId          String?
+  user            User?       @relation(fields: [userId], references: [id])
   status          OrderStatus @default(PENDING)
   total           Decimal     @db.Decimal(10, 2)
   shippingName    String

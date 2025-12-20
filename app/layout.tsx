@@ -23,7 +23,7 @@ export default function RootLayout({
       <head>
         <ColorSchemeScript defaultColorScheme="light" />
       </head>
-      <body className={inter.variable}>
+      <body className={inter.variable} suppressHydrationWarning>
         <MantineProvider theme={theme} defaultColorScheme="light">
           <Notifications position="top-right" />
           <Providers>{children}</Providers>

@@ -19,6 +19,7 @@ import {
   Box,
 } from "@mantine/core";
 import { useEffect, useState, useMemo } from "react";
+import { useSearchParams } from "next/navigation";
 import { IconFilter, IconSortDescending } from "@tabler/icons-react";
 
 interface Product {
@@ -45,6 +46,9 @@ export default function ProductsPage() {
   const [onlyInStock, setOnlyInStock] = useState(false);
   const [sortBy, setSortBy] = useState<string>("newest");
 
+  const searchParams = useSearchParams();
+  const fabricFilter = searchParams.get("fabric");
+
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -64,6 +68,13 @@ export default function ProductsPage() {
 
   const filteredProducts = useMemo(() => {
     let result = [...products];
+
+    // Fabric Filter
+    if (fabricFilter) {
+      result = result.filter((p) =>
+        p.fabricType?.toLowerCase().includes(fabricFilter.toLowerCase())
+      );
+    }
 
     // Price Filter
     result = result.filter(
@@ -279,15 +290,7 @@ export default function ProductsPage() {
               {filteredProducts.length > 0 ? (
                 <Grid gutter="xl">
                   {filteredProducts.map((product, index) => (
-                    <GridCol
-                      key={product.id}
-                      span={{ base: 12, sm: 6, md: 4 }}
-                      style={{
-                        animation: `fadeUp 0.6s ease forwards ${index * 0.1}s`,
-                        opacity: 0,
-                        transform: "translateY(20px)",
-                      }}
-                    >
+                    <GridCol key={product.id} span={{ base: 12, sm: 6, md: 4 }}>
                       <ProductCard {...formatProductCard(product)} />
                     </GridCol>
                   ))}

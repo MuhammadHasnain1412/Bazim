@@ -44,11 +44,12 @@ export default function CheckoutPage() {
   const handleSubmit = async (values: typeof form.values) => {
     setLoading(true);
     try {
+      const token = safeLocalStorage.getItem("token");
       const response = await fetch("/api/orders", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${safeLocalStorage.getItem("token")}`,
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify({
           items: items.map((item) => ({
@@ -67,17 +68,18 @@ export default function CheckoutPage() {
         clearCart();
         notifications.show({
           title: "Order placed successfully!",
-          message: "Thank you for your purchase",
+          message: "Thank you for your purchase. We will contact you soon.",
           color: "green",
         });
         router.push("/");
       } else {
-        throw new Error("Order failed");
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Order failed");
       }
-    } catch (error) {
+    } catch (error: any) {
       notifications.show({
         title: "Order failed",
-        message: "Please try again",
+        message: error.message || "Please try again",
         color: "red",
       });
     } finally {
@@ -162,7 +164,9 @@ export default function CheckoutPage() {
                     Qty: {item.quantity}
                   </Text>
                 </Stack>
-                <Text fw={600}>Rs {Number(item.price * item.quantity).toFixed(2)}</Text>
+                <Text fw={600}>
+                  Rs {Number(item.price * item.quantity).toFixed(2)}
+                </Text>
               </Group>
             ))}
 

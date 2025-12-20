@@ -6,44 +6,40 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const category = searchParams.get("category");
+    const fabric = searchParams.get("fabric");
     const featured = searchParams.get("featured");
     const search = searchParams.get("search");
 
     const isNew = searchParams.get("new");
 
-    const where: any = { AND: [] };
+    const filterClauses: any[] = [];
 
-    if (category) {
-      where.AND.push({
+    if (category || fabric) {
+      const filterValue = category || fabric;
+      filterClauses.push({
         OR: [
-          { category: { slug: category } },
-          { fabricType: { contains: category } },
+          { category: { slug: filterValue } },
+          { fabricType: { contains: filterValue } },
         ],
       });
     }
 
     if (featured === "true") {
-      where.AND.push({ featured: true });
+      filterClauses.push({ featured: true });
     }
 
-    if (isNew === "true") {
-      const oneWeekAgo = new Date();
-      oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-      where.AND.push({
-        createdAt: {
-          gte: oneWeekAgo,
-        },
-      });
-    }
+    // 'new' is handled by orderBy in findMany below
 
     if (search) {
-      where.AND.push({
+      filterClauses.push({
         OR: [
           { name: { contains: search } },
           { description: { contains: search } },
         ],
       });
     }
+
+    const where = filterClauses.length > 0 ? { AND: filterClauses } : {};
 
     const products = await prisma.product.findMany({
       where,
