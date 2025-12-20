@@ -33,19 +33,27 @@ export const WishlistContext = createContext<WishlistContextType | undefined>(
 
 export function WishlistProvider({ children }: { children: ReactNode }) {
   const [wishlist, setWishlist] = useState<WishlistItem[]>([]);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   // Load wishlist from localStorage on mount
   useEffect(() => {
     const savedWishlist = safeLocalStorage.getItem("wishlist");
     if (savedWishlist) {
-      setWishlist(JSON.parse(savedWishlist));
+      try {
+        setWishlist(JSON.parse(savedWishlist));
+      } catch (e) {
+        console.error("Failed to parse wishlist from localStorage", e);
+      }
     }
+    setIsLoaded(true);
   }, []);
 
   // Save wishlist to localStorage whenever it changes
   useEffect(() => {
-    safeLocalStorage.setItem("wishlist", JSON.stringify(wishlist));
-  }, [wishlist]);
+    if (isLoaded) {
+      safeLocalStorage.setItem("wishlist", JSON.stringify(wishlist));
+    }
+  }, [wishlist, isLoaded]);
 
   const addToWishlist = (item: WishlistItem) => {
     setWishlist((prev) => {

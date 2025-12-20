@@ -27,6 +27,7 @@ interface CartContextType {
   clearCart: () => void;
   total: number;
   itemCount: number;
+  isLoaded: boolean;
 }
 
 export const CartContext = createContext<CartContextType | undefined>(
@@ -35,19 +36,27 @@ export const CartContext = createContext<CartContextType | undefined>(
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   // Load cart from localStorage on mount
   useEffect(() => {
     const savedCart = safeLocalStorage.getItem("cart");
     if (savedCart) {
-      setItems(JSON.parse(savedCart));
+      try {
+        setItems(JSON.parse(savedCart));
+      } catch (e) {
+        console.error("Failed to parse cart from localStorage", e);
+      }
     }
+    setIsLoaded(true);
   }, []);
 
   // Save cart to localStorage whenever it changes
   useEffect(() => {
-    safeLocalStorage.setItem("cart", JSON.stringify(items));
-  }, [items]);
+    if (isLoaded) {
+      safeLocalStorage.setItem("cart", JSON.stringify(items));
+    }
+  }, [items, isLoaded]);
 
   const addToCart = (item: Omit<CartItem, "id">) => {
     setItems((prev) => {
@@ -101,6 +110,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         clearCart,
         total,
         itemCount,
+        isLoaded,
       }}
     >
       {children}

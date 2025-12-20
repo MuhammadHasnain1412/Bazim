@@ -1,10 +1,23 @@
 "use client";
 
-import { Container, Group, Text, Box, Title, ActionIcon } from "@mantine/core";
+import {
+  Container,
+  Group,
+  Text,
+  Box,
+  Title,
+  ActionIcon,
+  Indicator,
+} from "@mantine/core";
 import { IconHeart, IconShoppingCart } from "@tabler/icons-react";
 import Link from "next/link";
+import { useCart } from "@/context/CartContext";
+import { useWishlist } from "@/context/WishlistContext";
 
 export function Navbar() {
+  const { itemCount } = useCart();
+  const { wishlist } = useWishlist();
+
   return (
     <Box
       component="header"
@@ -56,16 +69,45 @@ export function Navbar() {
           </Group>
 
           <Group gap="xs">
-            <Link href="/wishlist" style={{ textDecoration: "none" }}>
-              <ActionIcon variant="transparent" c="dark" size="lg">
-                <IconHeart size={20} stroke={1.5} />
-              </ActionIcon>
-            </Link>
-            <Link href="/cart" style={{ textDecoration: "none" }}>
-              <ActionIcon variant="transparent" c="dark" size="lg">
-                <IconShoppingCart size={20} stroke={1.5} />
-              </ActionIcon>
-            </Link>
+            <Indicator
+              label={wishlist.length}
+              size={16}
+              color="black"
+              disabled={wishlist.length === 0}
+              offset={4}
+              styles={{
+                indicator: {
+                  fontSize: "10px",
+                  fontWeight: 700,
+                },
+              }}
+            >
+              <Link href="/wishlist" style={{ textDecoration: "none" }}>
+                <ActionIcon variant="transparent" c="dark" size="lg">
+                  <IconHeart size={20} stroke={1.5} />
+                </ActionIcon>
+              </Link>
+            </Indicator>
+
+            <Indicator
+              label={itemCount}
+              size={16}
+              color="black"
+              disabled={itemCount === 0}
+              offset={4}
+              styles={{
+                indicator: {
+                  fontSize: "10px",
+                  fontWeight: 700,
+                },
+              }}
+            >
+              <Link href="/cart" style={{ textDecoration: "none" }}>
+                <ActionIcon variant="transparent" c="dark" size="lg">
+                  <IconShoppingCart size={20} stroke={1.5} />
+                </ActionIcon>
+              </Link>
+            </Indicator>
           </Group>
         </Group>
       </Container>
