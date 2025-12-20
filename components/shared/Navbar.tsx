@@ -1,69 +1,74 @@
 "use client";
 
-import { Container, Group, Text, Box, Title, ActionIcon, Input } from "@mantine/core";
-import { IconSearch, IconUser, IconHeart, IconShoppingCart } from "@tabler/icons-react";
-import { useState } from "react";
+import { Container, Group, Text, Box, Title, ActionIcon } from "@mantine/core";
+import { IconHeart, IconShoppingCart } from "@tabler/icons-react";
 import Link from "next/link";
 
 export function Navbar() {
-  const [searchOpen, setSearchOpen] = useState(false);
-
   return (
-          <Box bg="white" py="md" style={{ position: "sticky", top: 0, zIndex: 100 }}>
-            <Container size="xl">
-              <Group justify="space-between" align="center">
-                {/* Logo */}
-                <Link href="/" style={{ textDecoration: 'none' }}>
-                  <Title order={1} size={24} fw={700} c="dark">
-                    BAZIM
-                  </Title>
-                </Link>
-    
-                {/* Navigation */}
-                <Group gap="xl">
-                  <Link href="/" style={{ textDecoration: 'none' }}>
-                    <Text size="md" fw={500} c="dark">
-                      Home
-                    </Text>
-                  </Link>
-                  <Link href="/products" style={{ textDecoration: 'none' }}>
-                    <Text size="md" fw={500} c="dark">
-                      Shop
-                    </Text>
-                  </Link>
-                </Group>
-    
-                <Group gap="md">
-                  <Link href="/login" style={{ textDecoration: 'none' }}>
-                    <ActionIcon variant="subtle" size="lg">
-                      <IconUser size={20} />
-                    </ActionIcon>
-                  </Link>
-                  <Link href="/wishlist" style={{ textDecoration: 'none' }}>
-                    <ActionIcon variant="subtle" size="lg">
-                      <IconHeart size={20} />
-                    </ActionIcon>
-                  </Link>
-                  <Link href="/cart" style={{ textDecoration: 'none' }}>
-                    <ActionIcon variant="subtle" size="lg">
-                      <IconShoppingCart size={20} />
-                    </ActionIcon>
-                  </Link>
-                </Group>
-              </Group>
-    
-              {/* Search Bar */}
-              {searchOpen && (
-                <Box mt="md">
-                  <Input
-                    placeholder="Search products..."
-                    size="lg"
-                    leftSection={<IconSearch size={18} />}
-                  />
-                </Box>
-              )}
-            </Container>
-          </Box>
-  );
+    <Box
+      component="header"
+      py="md"
+      style={{
+        position: "sticky",
+        top: 0,
+        zIndex: 100,
+        backgroundColor: "rgba(255, 255, 255, 0.8)",
+        backdropFilter: "blur(12px)",
+        borderBottom: "1px solid rgba(0,0,0,0.05)",
+      }}
+    >
+      <Container size="xl">
+        <Group justify="space-between" align="center">
+          {/* Logo */}
+          <Link href="/" style={{ textDecoration: "none" }}>
+            <Title order={1} size={22} fw={800} lts={1} c="dark">
+              BAZIM
+            </Title>
+          </Link>
 
+          {/* Navigation */}
+          <Group gap={40} visibleFrom="sm">
+            <Link href="/" style={{ textDecoration: "none" }}>
+              <Text
+                size="sm"
+                fw={500}
+                c="dark"
+                tt="uppercase"
+                lts={1}
+                style={{ transition: "opacity 0.2s" }}
+              >
+                Home
+              </Text>
+            </Link>
+            <Link href="/products" style={{ textDecoration: "none" }}>
+              <Text
+                size="sm"
+                fw={500}
+                c="dark"
+                tt="uppercase"
+                lts={1}
+                style={{ transition: "opacity 0.2s" }}
+              >
+                Shop
+              </Text>
+            </Link>
+          </Group>
+
+          <Group gap="xs">
+            <Link href="/wishlist" style={{ textDecoration: "none" }}>
+              <ActionIcon variant="transparent" c="dark" size="lg">
+                <IconHeart size={20} stroke={1.5} />
+              </ActionIcon>
+            </Link>
+            <Link href="/cart" style={{ textDecoration: "none" }}>
+              <ActionIcon variant="transparent" c="dark" size="lg">
+                <IconShoppingCart size={20} stroke={1.5} />
+              </ActionIcon>
+            </Link>
+          </Group>
+        </Group>
+      </Container>
+    </Box>
+  );
 }

@@ -1,6 +1,20 @@
 "use client";
 
-import { Container, Title, Stack, TextInput, NumberInput, Select, Button, Textarea, Group, Grid, GridCol, Text, LoadingOverlay } from "@mantine/core";
+import {
+  Container,
+  Title,
+  Stack,
+  TextInput,
+  NumberInput,
+  Select,
+  Button,
+  Textarea,
+  Group,
+  Grid,
+  GridCol,
+  Text,
+  LoadingOverlay,
+} from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useRouter } from "next/navigation";
 import { ImageUploader } from "@/components/admin/ImageUploader";
@@ -20,7 +34,6 @@ interface EditProductForm {
   designType: string;
   images: string[];
   colors: string;
-  sizes: string;
   featured: boolean;
 }
 
@@ -37,7 +50,6 @@ interface Product {
   designType: string;
   images: string[];
   colors: string;
-  sizes: string;
   featured: boolean;
   category: {
     id: string;
@@ -45,7 +57,11 @@ interface Product {
   };
 }
 
-export default function EditProductPage({ params }: { params: Promise<{ id: string }> }) {
+export default function EditProductPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   const router = useRouter();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
@@ -64,7 +80,6 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
       designType: "",
       images: [],
       colors: "",
-      sizes: "",
       featured: false,
     },
   });
@@ -74,7 +89,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
       try {
         const { id } = await params;
         const token = safeLocalStorage.getItem("adminToken");
-        
+
         const response = await fetch(`/api/products/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -84,7 +99,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
         if (response.ok) {
           const data = await response.json();
           const productData = data.product;
-          
+
           setProduct(productData);
           form.setValues({
             name: productData.name,
@@ -97,8 +112,9 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
             fabricGSM: productData.fabricGSM,
             designType: productData.designType,
             images: productData.images || [],
-            colors: Array.isArray(productData.colors) ? productData.colors.join(", ") : productData.colors,
-            sizes: Array.isArray(productData.sizes) ? productData.sizes.join(", ") : productData.sizes,
+            colors: Array.isArray(productData.colors)
+              ? productData.colors.join(", ")
+              : productData.colors,
             featured: productData.featured,
           });
         } else {
@@ -139,8 +155,8 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
         },
         body: JSON.stringify({
           ...values,
-          colors: values.colors.split(",").map(color => color.trim()),
-          sizes: values.sizes.split(",").map(size => size.trim()),
+          colors: values.colors.split(",").map((color) => color.trim()),
+          sizes: "[]",
         }),
       });
 
@@ -178,8 +194,10 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
   return (
     <Container size="xl" py="xl">
       <Stack gap="lg">
-        <Title order={1}>Edit Product</Title>
-        
+        <Title order={1} size="h2" tt="uppercase" lts={1} fw={700}>
+          Edit Product
+        </Title>
+
         <form onSubmit={form.onSubmit(handleSubmit)}>
           <Grid>
             <GridCol span={{ base: 12, md: 6 }}>
@@ -190,28 +208,28 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                   {...form.getInputProps("name")}
                   required
                 />
-                
+
                 <TextInput
                   label="Slug"
                   placeholder="product-slug"
                   {...form.getInputProps("slug")}
                   required
                 />
-                
+
                 <Textarea
                   label="Description"
                   placeholder="Enter product description"
                   {...form.getInputProps("description")}
                   required
                 />
-                
+
                 <NumberInput
                   label="Price (Rs)"
                   placeholder="0"
                   {...form.getInputProps("price")}
                   required
                 />
-                
+
                 <NumberInput
                   label="Stock"
                   placeholder="0"
@@ -220,7 +238,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                 />
               </Stack>
             </GridCol>
-            
+
             <GridCol span={{ base: 12, md: 6 }}>
               <Stack gap="md">
                 <Select
@@ -237,56 +255,51 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                   {...form.getInputProps("categoryId")}
                   required
                 />
-                
+
                 <TextInput
                   label="Fabric Type"
                   placeholder="Cotton, Silk, etc."
                   {...form.getInputProps("fabricType")}
                   required
                 />
-                
+
                 <TextInput
                   label="Fabric GSM"
                   placeholder="180 GSM"
                   {...form.getInputProps("fabricGSM")}
                   required
                 />
-                
+
                 <TextInput
                   label="Design Type"
                   placeholder="Plain, Embroidered, etc."
                   {...form.getInputProps("designType")}
                   required
                 />
-                
+
                 <div>
-                  <Text size="sm" fw={500} mb="xs">Product Images</Text>
+                  <Text size="sm" fw={500} mb="xs">
+                    Product Images
+                  </Text>
                   <ImageUploader
                     value={form.values.images}
                     onChange={(images) => form.setFieldValue("images", images)}
                     maxImages={5}
                   />
                 </div>
-                
+
                 <Textarea
                   label="Colors (comma separated)"
                   placeholder="#FFFFFF, #000000, #4169E1"
                   {...form.getInputProps("colors")}
                   required
                 />
-                
-                <Textarea
-                  label="Sizes (comma separated)"
-                  placeholder="S, M, L, XL"
-                  {...form.getInputProps("sizes")}
-                  required
-                />
               </Stack>
             </GridCol>
           </Grid>
-          
+
           <Group mt="lg">
-            <Button type="submit" color="blue" loading={submitting}>
+            <Button type="submit" loading={submitting}>
               Update Product
             </Button>
             <Button variant="outline" onClick={() => router.back()}>

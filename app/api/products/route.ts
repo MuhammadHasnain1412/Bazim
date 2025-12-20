@@ -9,34 +9,61 @@ export async function GET(request: NextRequest) {
     const featured = searchParams.get("featured");
     const search = searchParams.get("search");
 
-    const where: any = {};
-    
+    const isNew = searchParams.get("new");
+
+    const where: any = { AND: [] };
+
     if (category) {
-      where.category = { slug: category };
+      where.AND.push({
+        OR: [
+          { category: { slug: category } },
+          { fabricType: { contains: category } },
+        ],
+      });
     }
-    
+
     if (featured === "true") {
-      where.featured = true;
+      where.AND.push({ featured: true });
     }
-    
+
+    if (isNew === "true") {
+      const oneWeekAgo = new Date();
+      oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+      where.AND.push({
+        createdAt: {
+          gte: oneWeekAgo,
+        },
+      });
+    }
+
     if (search) {
-      where.OR = [
-        { name: { contains: search } },
-        { description: { contains: search } },
-      ];
+      where.AND.push({
+        OR: [
+          { name: { contains: search } },
+          { description: { contains: search } },
+        ],
+      });
     }
 
     const products = await prisma.product.findMany({
       where,
       include: {
         category: true,
+        images: {
+          select: {
+            id: true,
+          },
+        },
       },
       orderBy: { createdAt: "desc" },
     });
 
     return NextResponse.json({ products });
   } catch (error) {
-    return NextResponse.json({ error: "Failed to fetch products" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch products" },
+      { status: 500 }
+    );
   }
 }
 
@@ -67,14 +94,18 @@ export async function POST(request: NextRequest) {
         fabricType: data.fabricType,
         fabricGSM: data.fabricGSM,
         designType: data.designType,
-        colors: JSON.stringify(data.colors),
-        sizes: JSON.stringify(data.sizes),
+        colors: data.colors, // Client sends stringified JSON or plain string
+        sizes: data.sizes, // Client sends stringified JSON or plain string
         featured: data.featured || false,
       },
     });
 
     return NextResponse.json({ product }, { status: 201 });
   } catch (error) {
-    return NextResponse.json({ error: "Failed to create product" }, { status: 500 });
+    console.error("Error creating product:", error);
+    return NextResponse.json(
+      { error: "Failed to create product" },
+      { status: 500 }
+    );
   }
 }

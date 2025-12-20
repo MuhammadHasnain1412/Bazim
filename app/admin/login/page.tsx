@@ -6,10 +6,11 @@ import {
   TextInput,
   PasswordInput,
   Button,
-  Card,
   Stack,
   Text,
   Anchor,
+  Box,
+  Center,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useRouter } from "next/navigation";
@@ -48,9 +49,9 @@ export default function AdminLoginPage() {
         const data = await response.json();
         safeLocalStorage.setItem("adminToken", data.token);
         notifications.show({
-          title: "Login successful",
-          message: "Welcome to admin dashboard",
-          color: "green",
+          title: "Access Granted",
+          message: "Welcome back.",
+          color: "dark",
         });
         router.push("/admin");
       } else {
@@ -59,8 +60,11 @@ export default function AdminLoginPage() {
       }
     } catch (error) {
       notifications.show({
-        title: "Login failed",
-        message: error instanceof Error ? error.message : "Please try again",
+        title: "Access Denied",
+        message:
+          error instanceof Error
+            ? error.message
+            : "Please check your credentials.",
         color: "red",
       });
     } finally {
@@ -69,44 +73,65 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <Container size={420} my={40}>
-      <Title ta="center" mb="md">
-        Admin Login
-      </Title>
+    <Center h="100vh" bg="gray.0">
+      <Container size="xs" w="100%">
+        <Stack align="center" gap="xl" mb={40}>
+          <Title order={1} size={24} fw={800} lts={2} tt="uppercase">
+            Admin Portal
+          </Title>
+          <Text c="dimmed" size="sm" ta="center" maw={300}>
+            Enter your credentials to access the management dashboard.
+          </Text>
+        </Stack>
 
-      <Text c="dimmed" size="sm" ta="center" mb={20}>
-        Access the admin dashboard to manage products, orders, and more
-      </Text>
+        <Box>
+          <form onSubmit={form.onSubmit(handleSubmit)}>
+            <Stack gap="md">
+              <TextInput
+                placeholder="Email Address"
+                size="md"
+                variant="filled"
+                radius="sm"
+                {...form.getInputProps("email")}
+              />
 
-      <Card withBorder shadow="md" p="lg">
-        <form onSubmit={form.onSubmit(handleSubmit)}>
-          <Stack>
-            <TextInput
-              label="Email"
-              placeholder="admin@bazim.com"
-              required
-              {...form.getInputProps("email")}
-            />
+              <PasswordInput
+                placeholder="Password"
+                size="md"
+                variant="filled"
+                radius="sm"
+                {...form.getInputProps("password")}
+              />
 
-            <PasswordInput
-              label="Password"
-              placeholder="Enter your password"
-              required
-              {...form.getInputProps("password")}
-            />
+              <Button
+                type="submit"
+                fullWidth
+                loading={loading}
+                color="dark"
+                size="md"
+                radius="sm"
+                tt="uppercase"
+                fw={600}
+                lts={1}
+              >
+                Sign In
+              </Button>
+            </Stack>
+          </form>
+        </Box>
 
-            <Button type="submit" fullWidth loading={loading}>
-              Sign in
-            </Button>
-          </Stack>
-        </form>
-      </Card>
-
-      <Text c="dimmed" size="sm" ta="center" mt="md">
-        <Anchor component={Link} href="/">
-          Back to store
-        </Anchor>
-      </Text>
-    </Container>
+        <Center mt="xl">
+          <Anchor
+            component={Link}
+            href="/"
+            size="sm"
+            c="dimmed"
+            style={{ textDecoration: "none" }}
+          >
+            ← Return to Store
+          </Anchor>
+        </Center>
+      </Container>
+    </Center>
   );
 }

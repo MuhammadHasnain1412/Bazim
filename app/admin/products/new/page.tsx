@@ -17,6 +17,8 @@ import {
 import { useForm } from "@mantine/form";
 import { useRouter } from "next/navigation";
 import { ImageUploader } from "@/components/admin/ImageUploader";
+import { safeLocalStorage } from "@/lib/localStorage";
+import { notifications } from "@mantine/notifications";
 
 interface CreateProductForm {
   name: string;
@@ -29,7 +31,6 @@ interface CreateProductForm {
   designType: string;
   images: string[];
   colors: string;
-  sizes: string;
   featured: boolean;
 }
 
@@ -48,36 +49,49 @@ export default function NewProductPage() {
       designType: "",
       images: [],
       colors: "",
-      sizes: "",
       featured: false,
     },
   });
 
   const handleSubmit = async (values: CreateProductForm) => {
     try {
+      const token = safeLocalStorage.getItem("adminToken");
+      if (!token) {
+        notifications.show({
+          title: "Error",
+          message: "No admin token found. Please login again.",
+          color: "red",
+        });
+        return;
+      }
+
       // First create the product
       const response = await fetch("/api/products", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           ...values,
           colors: JSON.stringify(
             values.colors.split(",").map((color) => color.trim())
           ),
-          sizes: JSON.stringify(
-            values.sizes.split(",").map((size) => size.trim())
-          ),
+          sizes: JSON.stringify([]), // Send empty array for sizes
         }),
       });
 
       if (!response.ok) {
-        console.error("Failed to create product");
+        const err = await response.json();
+        notifications.show({
+          title: "Error",
+          message: `Failed to create product: ${err.error || "Unknown error"}`,
+          color: "red",
+        });
         return;
       }
 
-      const product = await response.json();
+      const { product } = await response.json();
 
       // Then associate the uploaded images with the product
       if (values.images.length > 0) {
@@ -86,6 +100,7 @@ export default function NewProductPage() {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
             },
             body: JSON.stringify({
               imageId: imageId,
@@ -97,16 +112,27 @@ export default function NewProductPage() {
         await Promise.all(imageUpdatePromises);
       }
 
+      notifications.show({
+        title: "Success",
+        message: "Product created successfully",
+        color: "green",
+      });
       router.push("/admin/products");
     } catch (error) {
-      console.error("Error creating product:", error);
+      notifications.show({
+        title: "Error",
+        message: "Error creating product",
+        color: "red",
+      });
     }
   };
 
   return (
     <Container size="xl" py="xl">
       <Stack gap="lg">
-        <Title order={1}>Create New Product</Title>
+        <Title order={1} size="h2" tt="uppercase" lts={1} fw={700}>
+          Create New Product
+        </Title>
 
         <form onSubmit={form.onSubmit(handleSubmit)}>
           <Grid>
@@ -210,10 +236,14 @@ export default function NewProductPage() {
           </Grid>
 
           <Group mt="lg">
-            <Button type="submit" color="blue">
+            <Button type="submit" color="dark">
               Create Product
             </Button>
-            <Button variant="outline" onClick={() => router.back()}>
+            <Button
+              variant="outline"
+              color="dark"
+              onClick={() => router.back()}
+            >
               Cancel
             </Button>
           </Group>

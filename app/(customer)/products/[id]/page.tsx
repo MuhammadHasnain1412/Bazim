@@ -1,6 +1,22 @@
 "use client";
 
-import { Container, Group, Stack, Title, Text, Button, Badge, Image, Grid, GridCol, Rating, NumberInput, ActionIcon, Tabs, Skeleton } from "@mantine/core";
+import {
+  Container,
+  Group,
+  Stack,
+  Title,
+  Text,
+  Button,
+  Badge,
+  Image,
+  Grid,
+  GridCol,
+  Rating,
+  NumberInput,
+  ActionIcon,
+  Tabs,
+  Skeleton,
+} from "@mantine/core";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { notFound } from "next/navigation";
@@ -12,14 +28,20 @@ interface Product {
   description: string;
   stock: number;
   featured: boolean;
-  images: string;
+  images: any;
   colors: string;
-  sizes: string;
   category: {
     id: string;
     name: string;
     slug: string;
   };
+  reviews: {
+    id: string;
+    rating: number;
+    comment: string;
+    userName: string;
+    createdAt: string;
+  }[];
   createdAt: string;
   updatedAt: string;
 }
@@ -34,14 +56,14 @@ export default function ProductPage() {
       try {
         const response = await fetch(`/api/products/${params.id}`);
         const data = await response.json();
-        
+
         if (data.product) {
           setProduct(data.product);
         } else {
           notFound();
         }
       } catch (error) {
-        console.error('Failed to fetch product:', error);
+        console.error("Failed to fetch product:", error);
         notFound();
       } finally {
         setLoading(false);
@@ -86,34 +108,57 @@ export default function ProductPage() {
   }
 
   const formatProductDetail = (product: Product) => {
-    const images = JSON.parse(product.images || '[]');
-    const colors = JSON.parse(product.colors || '[]');
-    const sizes = JSON.parse(product.sizes || '[]');
-    
+    let imageUrl = "/images/testimg.jpeg";
+
+    if (Array.isArray(product.images) && product.images.length > 0) {
+      imageUrl = `/api/upload?id=${product.images[0].id}`;
+    } else if (typeof product.images === "string") {
+      try {
+        const parsed = JSON.parse(product.images || "[]");
+        if (parsed.length > 0) imageUrl = parsed[0];
+      } catch (e) {
+        console.error("Error parsing legacy images", e);
+      }
+    }
+
+    let colors: string[] = [];
+    try {
+      colors = JSON.parse(product.colors || "[]");
+    } catch (e) {
+      console.error("Error parsing colors", e);
+    }
+
+    const reviews = product.reviews || [];
+    const avgRating =
+      reviews.length > 0
+        ? reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length
+        : 0;
+
     return {
       id: product.id,
       name: product.name,
       price: product.price,
-      image: images[0] || '/images/testimg.jpeg',
-      category: product.category.name,
+      image: imageUrl,
+      category: product.category?.name || "Uncategorized",
       inStock: product.stock > 0,
       colors: colors,
-      badge: product.featured ? 'Featured' : undefined,
+      badge: product.featured ? "Featured" : undefined,
       description: product.description,
-      sizes: sizes,
-      rating: 4.5,
-      reviews: 150,
+      rating: avgRating,
+      reviewCount: reviews.length,
+      reviewsList: reviews,
       features: [
-        'Premium quality fabric',
-        'Comfortable fit',
-        'Durable stitching',
-        'Easy to care'
-      ]
+        "Premium quality fabric",
+        "Comfortable fit",
+        "Durable stitching",
+        "Easy to care",
+      ],
     };
   };
 
   // Dynamic import to avoid circular dependency issues
-  const ProductDetail = require("@/components/customer/ProductDetail").ProductDetail;
-  
+  const ProductDetail =
+    require("@/components/customer/ProductDetail").ProductDetail;
+
   return <ProductDetail product={formatProductDetail(product)} />;
 }

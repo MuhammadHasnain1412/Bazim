@@ -1,4 +1,12 @@
-import { Container, Stack, Title, SimpleGrid, Card, Image, Text } from "@mantine/core";
+import {
+  Container,
+  Stack,
+  Title,
+  SimpleGrid,
+  Card,
+  Image,
+  Text,
+} from "@mantine/core";
 
 const blogPosts = [
   {
@@ -28,18 +36,26 @@ export function BlogSection() {
   return (
     <Container size="xl" py="xl">
       <Stack gap="xl">
-        <Title order={2} size={36} fw={600} ta="center">
+        <Title order={2} size={36} tt="uppercase" lts={1} fw={700} ta="center">
           Latest From the Lookbook
         </Title>
 
         <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing="lg">
           {blogPosts.map((post) => (
-            <Card key={post.id} component="a" href="#" style={{ textDecoration: "none" }}>
+            <Card
+              key={post.id}
+              component="a"
+              href="#"
+              style={{ textDecoration: "none" }}
+              padding={0}
+              bg="transparent"
+            >
               <Card.Section>
                 <Image
                   src={post.image}
                   alt={post.title}
-                  h={200}
+                  h={300}
+                  w="100%"
                   style={{ objectFit: "cover" }}
                 />
               </Card.Section>

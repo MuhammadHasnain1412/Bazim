@@ -38,7 +38,7 @@ export default function CartPage() {
 
   return (
     <Container size="xl" py="xl">
-      <Title order={1} mb="xl">
+      <Title order={1} mb="xl" size="h2" tt="uppercase" lts={1} fw={700}>
         Shopping Cart ({itemCount} items)
       </Title>
 
@@ -77,11 +77,6 @@ export default function CartPage() {
                         />
                       </Group>
                     )}
-                    {item.size && (
-                      <Text size="sm" c="gray.6">
-                        Size: {item.size}
-                      </Text>
-                    )}
                     <Text size="lg" fw={600}>
                       Rs {Number(item.price).toFixed(2)}
                     </Text>
@@ -90,7 +85,9 @@ export default function CartPage() {
                   <Group gap="md" align="center">
                     <NumberInput
                       value={item.quantity}
-                      onChange={(value) => updateQuantity(item.id, Number(value))}
+                      onChange={(value) =>
+                        updateQuantity(item.id, Number(value))
+                      }
                       min={1}
                       max={10}
                       w={80}
@@ -145,7 +142,12 @@ export default function CartPage() {
               Proceed to Checkout
             </Button>
 
-            <Button component={Link} href="/products" variant="outline" fullWidth>
+            <Button
+              component={Link}
+              href="/products"
+              variant="outline"
+              fullWidth
+            >
               Continue Shopping
             </Button>
           </Stack>

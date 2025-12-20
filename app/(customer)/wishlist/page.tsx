@@ -1,53 +1,52 @@
 "use client";
 
-import { Container, Title, Grid, GridCol, Stack, Text } from "@mantine/core";
+import {
+  Container,
+  Title,
+  Grid,
+  GridCol,
+  Stack,
+  Text,
+  Button,
+} from "@mantine/core";
 import { ProductCard } from "@/components/customer/ProductCard";
-import { useEffect, useState } from "react";
-import { IconHeart } from "@tabler/icons-react";
-import { safeLocalStorage } from "@/lib/localStorage";
+import { useWishlist } from "@/context/WishlistContext";
+import { IconHeart, IconShoppingBag } from "@tabler/icons-react";
+import Link from "next/link";
 
 export default function WishlistPage() {
-  const [wishlist, setWishlist] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetchWishlist();
-  }, []);
-
-  const fetchWishlist = async () => {
-    try {
-      const response = await fetch("/api/wishlist", {
-        headers: {
-          Authorization: `Bearer ${safeLocalStorage.getItem("token")}`,
-        },
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setWishlist(data.items);
-      }
-    } catch (error) {
-      console.error("Failed to fetch wishlist:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (loading) {
-    return (
-      <Container size="xl" py="xl">
-        <Text>Loading...</Text>
-      </Container>
-    );
-  }
+  const { wishlist } = useWishlist();
 
   if (wishlist.length === 0) {
     return (
-      <Container size="xl" py="xl">
+      <Container size="xl" py={100}>
         <Stack align="center" gap="xl">
-          <IconHeart size={80} stroke={1} color="gray" />
-          <Title order={2}>Your wishlist is empty</Title>
-          <Text c="gray.6">Save your favorite items here</Text>
+          <IconHeart
+            size={100}
+            stroke={0.5}
+            color="var(--mantine-color-gray-3)"
+          />
+          <Stack gap={4} align="center">
+            <Title order={2} tt="uppercase" lts={2} fw={700}>
+              Your wishlist is empty
+            </Title>
+            <Text c="gray.6" size="sm" tt="uppercase" lts={1}>
+              Save your favorite items here to view them later.
+            </Text>
+          </Stack>
+          <Button
+            component={Link}
+            href="/products"
+            variant="filled"
+            color="black"
+            radius="0"
+            size="md"
+            tt="uppercase"
+            lts={2}
+            leftSection={<IconShoppingBag size={18} />}
+          >
+            Go Shopping
+          </Button>
         </Stack>
       </Container>
     );
@@ -55,21 +54,29 @@ export default function WishlistPage() {
 
   return (
     <Container size="xl" py="xl">
-      <Title order={1} mb="xl">
-        My Wishlist ({wishlist.length} items)
-      </Title>
+      <Stack gap="xl" mb={40}>
+        <Title order={1} tt="uppercase" lts={2} fw={700}>
+          My Wishlist
+        </Title>
+        <Text size="sm" c="dimmed" tt="uppercase" lts={1} fw={500}>
+          {wishlist.length} {wishlist.length === 1 ? "Item" : "Items"} Found
+        </Text>
+      </Stack>
 
-      <Grid>
-        {wishlist.map((item: any) => (
-          <GridCol key={item.id} span={{ base: 12, sm: 6, md: 4, lg: 3 }}>
+      <Grid gutter="xl">
+        {wishlist.map((item) => (
+          <GridCol
+            key={item.productId}
+            span={{ base: 12, sm: 6, md: 4, lg: 3 }}
+          >
             <ProductCard
-              id={item.product.id}
-              name={item.product.name}
-              price={Number(item.product.price)}
-              image={JSON.parse(item.product.images)[0]}
-              category={item.product.category.name}
-              inStock={item.product.stock > 0}
-              colors={JSON.parse(item.product.colors)}
+              id={item.productId}
+              name={item.name}
+              price={item.price}
+              image={item.image}
+              category={item.category}
+              inStock={item.inStock}
+              colors={item.colors}
             />
           </GridCol>
         ))}

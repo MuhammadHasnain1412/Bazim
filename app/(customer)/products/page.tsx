@@ -2,7 +2,15 @@
 
 // app/(customer)/products/page.tsx
 import { ProductCard } from "@/components/customer/ProductCard";
-import { Container, Grid, GridCol, Stack, Title, Text, Skeleton } from "@mantine/core";
+import {
+  Container,
+  Grid,
+  GridCol,
+  Stack,
+  Title,
+  Text,
+  Skeleton,
+} from "@mantine/core";
 import { useEffect, useState } from "react";
 
 interface Product {
@@ -12,7 +20,7 @@ interface Product {
   description: string;
   stock: number;
   featured: boolean;
-  images: string;
+  images: { id: string }[];
   colors: string;
   sizes: string;
   category: {
@@ -31,14 +39,14 @@ export default function ProductsPage() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch('/api/products');
+        const response = await fetch("/api/products");
         const data = await response.json();
-        
+
         if (data.products) {
           setProducts(data.products);
         }
       } catch (error) {
-        console.error('Failed to fetch products:', error);
+        console.error("Failed to fetch products:", error);
       } finally {
         setLoading(false);
       }
@@ -48,18 +56,29 @@ export default function ProductsPage() {
   }, []);
 
   const formatProductCard = (product: Product) => {
-    const images = JSON.parse(product.images || '[]');
-    const colors = JSON.parse(product.colors || '[]');
-    
+    // Check if images is an array (from new API) or string (legacy)
+    let images = [];
+    if (Array.isArray(product.images)) {
+      images = product.images;
+    } else {
+      images = JSON.parse(product.images || "[]");
+    }
+
+    const colors = JSON.parse(product.colors || "[]");
+    const imageId =
+      Array.isArray(product.images) && product.images.length > 0
+        ? product.images[0].id
+        : null;
+
     return {
       id: product.id,
       name: product.name,
       price: product.price,
-      image: images[0] || '/images/testimg.jpeg',
-      category: product.category.name,
+      image: imageId ? `/api/upload?id=${imageId}` : "/images/testimg.jpeg",
+      category: product.category?.name || "Uncategorized",
       inStock: product.stock > 0,
       colors: colors,
-      badge: product.featured ? 'Featured' : undefined,
+      badge: product.featured ? "Featured" : undefined,
     };
   };
 
@@ -73,10 +92,7 @@ export default function ProductsPage() {
           </div>
           <Grid>
             {[...Array(8)].map((_, index) => (
-              <GridCol
-                key={index}
-                span={{ base: 12, sm: 6, md: 4, lg: 3 }}
-              >
+              <GridCol key={index} span={{ base: 12, sm: 6, md: 4, lg: 3 }}>
                 <Stack gap="md">
                   <Skeleton height={280} radius="md" />
                   <Skeleton height={20} width="80%" />
@@ -125,10 +141,7 @@ export default function ProductsPage() {
 
         <Grid>
           {products.map((product) => (
-            <GridCol
-              key={product.id}
-              span={{ base: 12, sm: 6, md: 4, lg: 3 }}
-            >
+            <GridCol key={product.id} span={{ base: 12, sm: 6, md: 4, lg: 3 }}>
               <ProductCard {...formatProductCard(product)} />
             </GridCol>
           ))}

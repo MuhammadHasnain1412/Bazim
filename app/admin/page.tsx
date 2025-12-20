@@ -1,9 +1,24 @@
 "use client";
 
-import { Stack, Title, SimpleGrid, Card, Text, Group, Progress, Badge } from "@mantine/core";
-import { IconBox, IconShoppingCart, IconUsers, IconCurrencyDollar, IconAlertTriangle } from "@tabler/icons-react";
+import {
+  Stack,
+  Title,
+  SimpleGrid,
+  Paper,
+  Text,
+  Group,
+  Badge,
+} from "@mantine/core";
+import {
+  IconBox,
+  IconShoppingCart,
+  IconUsers,
+  IconCurrencyDollar,
+  IconAlertTriangle,
+} from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 import { safeLocalStorage } from "@/lib/localStorage";
+import { notifications } from "@mantine/notifications";
 
 interface DashboardStats {
   totalProducts: number;
@@ -53,6 +68,11 @@ export default function AdminDashboard() {
       }
     } catch (error) {
       console.error("Failed to fetch dashboard data:", error);
+      notifications.show({
+        title: "Error",
+        message: "Failed to fetch dashboard data",
+        color: "red",
+      });
     } finally {
       setLoading(false);
     }
@@ -63,19 +83,19 @@ export default function AdminDashboard() {
       title: "Total Products",
       value: stats.totalProducts,
       icon: IconBox,
-      color: "blue",
+      color: "gray",
     },
     {
       title: "Total Orders",
       value: stats.totalOrders,
       icon: IconShoppingCart,
-      color: "green",
+      color: "gray",
     },
     {
       title: "Revenue",
       value: `Rs ${stats.totalRevenue.toLocaleString()}`,
       icon: IconCurrencyDollar,
-      color: "orange",
+      color: "gray",
     },
     {
       title: "Pending Orders",
@@ -90,14 +110,14 @@ export default function AdminDashboard() {
       title: "Low Stock Products",
       value: stats.lowStockProducts,
       icon: IconAlertTriangle,
-      color: "yellow",
+      color: "red",
       description: "Products with less than 10 units",
     },
     {
       title: "Recent Orders (7 days)",
       value: stats.recentOrders,
       icon: IconShoppingCart,
-      color: "cyan",
+      color: "blue",
       description: "Orders placed in the last week",
     },
   ];
@@ -105,81 +125,110 @@ export default function AdminDashboard() {
   if (loading) {
     return (
       <Stack gap="xl">
-        <Title order={2}>Dashboard Overview</Title>
-        <Text>Loading dashboard data...</Text>
+        <Title order={2} size="h3" tt="uppercase" lts={2} fw={600}>
+          Dashboard
+        </Title>
+        <Text c="dimmed">Loading...</Text>
       </Stack>
     );
   }
 
   return (
-    <Stack gap="xl">
-      <Title order={2}>Dashboard Overview</Title>
+    <Stack gap={60}>
+      <Title order={2} size="h2" tt="uppercase" lts={2} fw={600} ta="center">
+        Dashboard Overview
+      </Title>
 
-      <SimpleGrid cols={{ base: 1, sm: 2, lg: 4 }} spacing="lg">
+      <SimpleGrid cols={{ base: 1, sm: 2, lg: 4 }} spacing="xl">
         {statCards.map((stat) => (
-          <Card key={stat.title} padding="lg" withBorder>
-            <Group justify="space-between">
-              <Stack gap="xs">
-                <Text size="sm" c="gray.6">
-                  {stat.title}
-                </Text>
-                <Text size="xl" fw={700}>
-                  {stat.value}
-                </Text>
-              </Stack>
-              <stat.icon size={40} stroke={1.5} color={stat.color} />
+          <Paper key={stat.title} p="xl" bg="white" radius="md">
+            <Group justify="space-between" mb="xs">
+              <Text size="xs" c="dimmed" tt="uppercase" lts={1} fw={700}>
+                {stat.title}
+              </Text>
+              <stat.icon
+                size={20}
+                stroke={1.5}
+                color={`var(--mantine-color-${stat.color}-6)`}
+              />
             </Group>
-          </Card>
+            <Text size="xl" fw={300} lts={-1} style={{ fontSize: 32 }}>
+              {stat.value}
+            </Text>
+          </Paper>
         ))}
       </SimpleGrid>
 
-      <SimpleGrid cols={{ base: 1, md: 2 }} spacing="lg">
+      <SimpleGrid cols={{ base: 1, md: 2 }} spacing="xl">
         {additionalStats.map((stat) => (
-          <Card key={stat.title} padding="lg" withBorder>
-            <Group justify="space-between">
-              <Stack gap="xs">
-                <Text size="sm" c="gray.6">
-                  {stat.title}
-                </Text>
-                <Text size="xl" fw={700}>
-                  {stat.value}
-                </Text>
-                {stat.description && (
-                  <Text size="xs" c="gray.5">
-                    {stat.description}
-                  </Text>
-                )}
-              </Stack>
-              <stat.icon size={40} stroke={1.5} color={stat.color} />
+          <Paper key={stat.title} p="xl" bg="white" radius="md">
+            <Group justify="space-between" mb="xs">
+              <Text size="xs" c="dimmed" tt="uppercase" lts={1} fw={700}>
+                {stat.title}
+              </Text>
+              <stat.icon
+                size={20}
+                stroke={1.5}
+                color={`var(--mantine-color-${stat.color}-6)`}
+              />
             </Group>
-          </Card>
+            <Text size="xl" fw={300} lts={-1} style={{ fontSize: 32 }}>
+              {stat.value}
+            </Text>
+            {stat.description && (
+              <Text size="sm" c="dimmed" mt="xs">
+                {stat.description}
+              </Text>
+            )}
+          </Paper>
         ))}
       </SimpleGrid>
 
       {topProducts.length > 0 && (
-        <Card padding="lg" withBorder>
-          <Title order={3} mb="md">Top Selling Products</Title>
-          <Stack gap="sm">
+        <Stack gap="xl">
+          <Title order={3} size="h4" tt="uppercase" lts={1} fw={600}>
+            Top Selling Products
+          </Title>
+
+          <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing="xl">
             {topProducts.map((product, index) => (
-              <Group key={product.id} justify="space-between">
-                <Stack gap={0}>
-                  <Text size="sm" fw={500}>
-                    {index + 1}. {product.name}
+              <Paper key={product.id} p="lg" bg="white" radius="sm">
+                <Group justify="space-between" align="flex-start" mb="md">
+                  <Badge variant="light" color="gray" size="sm" radius="sm">
+                    #{index + 1}
+                  </Badge>
+                  <Badge
+                    color={product.stock < 10 ? "red" : "gray"}
+                    variant="dot"
+                    size="sm"
+                  >
+                    {product.stock < 10 ? "Low Stock" : "In Stock"}
+                  </Badge>
+                </Group>
+                <Text fw={600} size="lg" mb={4}>
+                  {product.name}
+                </Text>
+                <Group gap="xs">
+                  <Text size="sm" c="dimmed">
+                    Sold:{" "}
+                    <Text span c="dark" fw={500}>
+                      {product.sold}
+                    </Text>
                   </Text>
-                  <Text size="xs" c="gray.6">
-                    Sold: {product.sold} units | Stock: {product.stock}
+                  <Text size="sm" c="dimmed">
+                    •
                   </Text>
-                </Stack>
-                <Badge 
-                  color={product.stock < 10 ? "red" : "green"}
-                  variant="light"
-                >
-                  {product.stock < 10 ? "Low Stock" : "In Stock"}
-                </Badge>
-              </Group>
+                  <Text size="sm" c="dimmed">
+                    Stock:{" "}
+                    <Text span c="dark" fw={500}>
+                      {product.stock}
+                    </Text>
+                  </Text>
+                </Group>
+              </Paper>
             ))}
-          </Stack>
-        </Card>
+          </SimpleGrid>
+        </Stack>
       )}
     </Stack>
   );

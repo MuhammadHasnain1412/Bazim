@@ -17,6 +17,11 @@ export async function GET(
           orderBy: { createdAt: "desc" },
           take: 10,
         },
+        images: {
+          select: {
+            id: true,
+          },
+        },
       },
     });
 
@@ -32,7 +37,10 @@ export async function GET(
 
     return NextResponse.json({ product });
   } catch (error) {
-    return NextResponse.json({ error: "Failed to fetch product" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch product" },
+      { status: 500 }
+    );
   }
 }
 
@@ -80,7 +88,10 @@ export async function PUT(
 
     return NextResponse.json({ product });
   } catch (error) {
-    return NextResponse.json({ error: "Failed to update product" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to update product" },
+      { status: 500 }
+    );
   }
 }
 
@@ -89,39 +100,29 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    console.log("DELETE request received");
-    
-    const authHeader = request.headers.get("authorization");
-    console.log("Auth header:", authHeader ? "present" : "missing");
-    
     const tokenData = getUserFromRequest(request);
-    console.log("Token data:", tokenData ? "valid" : "invalid");
-    
+
     if (!tokenData) {
-      return NextResponse.json({ error: "Unauthorized - No valid token" }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const user = await prisma.user.findUnique({
       where: { id: tokenData.userId },
     });
 
-    console.log("User found:", user ? "yes" : "no");
-    console.log("User role:", user?.role);
-
     if (user?.role !== "ADMIN") {
-      return NextResponse.json({ error: "Forbidden - Admin access required" }, { status: 403 });
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     const { id } = await params;
-    console.log("Deleting product with ID:", id);
 
     await prisma.product.delete({ where: { id } });
 
-    console.log("Product deleted successfully");
-
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Delete error:", error);
-    return NextResponse.json({ error: "Failed to delete product" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to delete product" },
+      { status: 500 }
+    );
   }
 }

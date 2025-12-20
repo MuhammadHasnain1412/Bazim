@@ -1,4 +1,14 @@
-import { Container, Stack, Title, Grid, GridCol, Group, Button, Text, Skeleton } from "@mantine/core";
+import {
+  Container,
+  Stack,
+  Title,
+  Grid,
+  GridCol,
+  Group,
+  Button,
+  Text,
+  Skeleton,
+} from "@mantine/core";
 import Link from "next/link";
 import { ProductCard } from "./ProductCard";
 import { useEffect, useState } from "react";
@@ -10,9 +20,8 @@ interface Product {
   description: string;
   stock: number;
   featured: boolean;
-  images: string;
+  images: { id: string }[];
   colors: string;
-  sizes: string;
   category: {
     id: string;
     name: string;
@@ -29,15 +38,15 @@ export function FeaturedProductsSection() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch('/api/products?featured=true');
+        const response = await fetch("/api/products?new=true");
         const data = await response.json();
-        
+
         if (data.products) {
-          // Get first 4 featured products
+          // Get first 4 new products
           setProducts(data.products.slice(0, 4));
         }
       } catch (error) {
-        console.error('Failed to fetch products:', error);
+        console.error("Failed to fetch products:", error);
       } finally {
         setLoading(false);
       }
@@ -47,18 +56,32 @@ export function FeaturedProductsSection() {
   }, []);
 
   const formatProductCard = (product: Product) => {
-    const images = JSON.parse(product.images || '[]');
-    const colors = JSON.parse(product.colors || '[]');
-    
+    // Check if images is an array (from new API) or string (legacy)
+    let images = [];
+    if (Array.isArray(product.images)) {
+      images = product.images;
+    } else {
+      images = JSON.parse(product.images || "[]");
+    }
+
+    const colors = JSON.parse(product.colors || "[]");
+
+    // If it's the new format with objects, get the ID. If legacy string array, use it directly (assuming URL).
+    // Actually new API returns { id } objects.
+    const imageId =
+      Array.isArray(product.images) && product.images.length > 0
+        ? product.images[0].id
+        : null;
+
     return {
       id: product.id,
       name: product.name,
       price: product.price,
-      image: images[0] || '/images/testimg.jpeg',
-      category: product.category.name,
+      image: imageId ? `/api/upload?id=${imageId}` : "/images/testimg.jpeg",
+      category: product.category?.name || "Uncategorized",
       inStock: product.stock > 0,
       colors: colors,
-      badge: product.featured ? 'Featured' : undefined,
+      badge: product.featured ? "Featured" : undefined,
     };
   };
 
@@ -67,7 +90,7 @@ export function FeaturedProductsSection() {
       <Container size="xl" py="xl">
         <Stack gap="xl">
           <div>
-            <Title order={2} size={24} fw={600} mb="md">
+            <Title order={2} size={24} tt="uppercase" lts={1} fw={700} mb="md">
               New Arrivals
             </Title>
             <Text size="lg" c="gray.6">
@@ -76,10 +99,7 @@ export function FeaturedProductsSection() {
           </div>
           <Grid>
             {[...Array(4)].map((_, index) => (
-              <GridCol
-                key={index}
-                span={{ base: 12, sm: 6, md: 3 }}
-              >
+              <GridCol key={index} span={{ base: 12, sm: 6, md: 3 }}>
                 <Stack gap="md">
                   <Skeleton height={280} radius="md" />
                   <Skeleton height={20} width="80%" />
@@ -98,7 +118,14 @@ export function FeaturedProductsSection() {
     return (
       <Container size="xl" py="xl">
         <Stack gap="xl">
-          <Title order={2} size={36} fw={600} ta="center">
+          <Title
+            order={2}
+            size={36}
+            tt="uppercase"
+            lts={1}
+            fw={700}
+            ta="center"
+          >
             New Arrivals
           </Title>
           <Text ta="center" c="dimmed">
@@ -112,7 +139,7 @@ export function FeaturedProductsSection() {
   return (
     <Container size="xl" py="xl">
       <Stack gap="xl">
-        <Title order={2} size={36} fw={600} ta="center">
+        <Title order={2} size={36} tt="uppercase" lts={1} fw={700} ta="center">
           New Arrivals
         </Title>
 
@@ -125,7 +152,7 @@ export function FeaturedProductsSection() {
         </Grid>
 
         <Group justify="center">
-          <Link href="/products" style={{ textDecoration: 'none' }}>
+          <Link href="/products" style={{ textDecoration: "none" }}>
             <Button variant="outline" size="lg" color="dark">
               View All Products
             </Button>

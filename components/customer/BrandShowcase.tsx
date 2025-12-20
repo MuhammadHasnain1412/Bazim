@@ -1,4 +1,12 @@
-import { Container, Stack, Title, SimpleGrid, Card, Box, Image } from "@mantine/core";
+import {
+  Container,
+  Stack,
+  Title,
+  SimpleGrid,
+  Card,
+  Box,
+  Image,
+} from "@mantine/core";
 
 const brands = [
   { name: "Nike", logo: "https://picsum.photos/100/50?random=10" },
@@ -13,7 +21,7 @@ export function BrandShowcase() {
   return (
     <Container size="xl" py="xl">
       <Stack gap="xl">
-        <Title order={2} size={36} fw={600} ta="center">
+        <Title order={2} size={36} tt="uppercase" lts={1} fw={700} ta="center">
           Shop Our Featured Brands
         </Title>
 
@@ -25,6 +33,8 @@ export function BrandShowcase() {
               component="a"
               href="#"
               style={{ textDecoration: "none" }}
+              bg="transparent"
+              withBorder={false}
             >
               <Box
                 h="100%"
@@ -32,15 +42,12 @@ export function BrandShowcase() {
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  backgroundColor: "#f8f9fa",
+                  filter: "grayscale(100%)",
+                  opacity: 0.7,
+                  transition: "all 0.3s",
                 }}
               >
-                <Image
-                  src={brand.logo}
-                  alt={brand.name}
-                  h={40}
-                  fit="contain"
-                />
+                <Image src={brand.logo} alt={brand.name} h={40} fit="contain" />
               </Box>
             </Card>
           ))}

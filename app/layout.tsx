@@ -3,6 +3,10 @@ import "@mantine/notifications/styles.css";
 import { ColorSchemeScript, MantineProvider } from "@mantine/core";
 import { Notifications } from "@mantine/notifications";
 import { Providers } from "./provider";
+import { Inter } from "next/font/google";
+import { theme } from "./theme";
+
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata = {
   title: "Bazim Clothing",
@@ -19,8 +23,8 @@ export default function RootLayout({
       <head>
         <ColorSchemeScript defaultColorScheme="light" />
       </head>
-      <body>
-        <MantineProvider defaultColorScheme="light">
+      <body className={inter.variable}>
+        <MantineProvider theme={theme} defaultColorScheme="light">
           <Notifications position="top-right" />
           <Providers>{children}</Providers>
         </MantineProvider>
