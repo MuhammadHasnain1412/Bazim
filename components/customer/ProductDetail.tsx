@@ -40,7 +40,7 @@ interface ProductDetailProps {
     price: number;
     originalPrice?: number;
     image: string;
-    category: string;
+    fabricType: string;
     inStock: boolean;
     colors: string[];
     badge?: string;
@@ -72,7 +72,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
       name: product.name,
       price: product.price,
       image: product.image,
-      category: product.category,
+      fabricType: product.fabricType,
       inStock: product.inStock,
       colors: product.colors,
     });
@@ -158,7 +158,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
                 name: p.name,
                 price: p.price,
                 image: images[0] || "/images/testimg.jpeg",
-                category: p.category?.name || "Uncategorized",
+                fabricType: p.fabricType || "Premium Fabric",
                 inStock: p.stock > 0,
                 colors: colors,
                 badge: p.featured ? "Featured" : undefined,
@@ -193,7 +193,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
           /
         </Text>
         <Text size="sm" c="gray.6">
-          Shop Details
+          {product.fabricType}
         </Text>
       </Group>
 

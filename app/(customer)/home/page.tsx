@@ -17,6 +17,8 @@ import {
   Button,
   Image,
   Box,
+  Group,
+  rem,
 } from "@mantine/core";
 
 export default function HomePage() {
@@ -25,17 +27,24 @@ export default function HomePage() {
       <Box
         style={{
           position: "relative",
-          height: "90vh",
+          height: "100vh",
           width: "100%",
           overflow: "hidden",
+          backgroundColor: "#000",
         }}
       >
         <Image
-          src="https://picsum.photos/1920/1080?random=hero"
-          alt="Hero"
+          src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=2070&auto=format&fit=crop"
+          alt="Luxury Fashion Hero"
           w="100%"
           h="100%"
-          style={{ objectFit: "cover" }}
+          style={{
+            objectFit: "cover",
+            opacity: 0.7,
+            filter: "brightness(0.8)",
+            transform: "scale(1.05)",
+            animation: "slowZoom 20s infinite alternate ease-in-out",
+          }}
         />
         <Box
           style={{
@@ -44,39 +53,97 @@ export default function HomePage() {
             left: 0,
             right: 0,
             bottom: 0,
-            background: "rgba(0,0,0,0.2)", // lighter overlay
+            background:
+              "linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.7) 100%)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
           }}
         >
-          <Stack align="center" gap="lg" c="white">
-            <Title
-              order={1}
-              size={80}
-              fw={300}
+          <Stack align="center" gap={30} c="white" px="md">
+            <Stack gap={5} align="center">
+              <Text
+                size="xs"
+                fw={700}
+                tt="uppercase"
+                lts={5}
+                c="gray.4"
+                style={{ animation: "fadeInUp 0.8s ease-out" }}
+              >
+                Autumn / Winter 2024
+              </Text>
+              <Title
+                order={1}
+                size={rem(72)}
+                fw={900}
+                ta="center"
+                lts={2}
+                tt="uppercase"
+                style={{
+                  lineHeight: 1,
+                  animation: "fadeInUp 1s ease-out 0.2s both",
+                }}
+              >
+                The Art of <br /> Unstitched
+              </Title>
+            </Stack>
+
+            <Text
+              size="xl"
               ta="center"
-              lts={2}
-              style={{ textShadow: "0 2px 10px rgba(0,0,0,0.3)" }}
+              maw={600}
+              fw={300}
+              lts={1}
+              c="gray.2"
+              style={{ animation: "fadeInUp 1s ease-out 0.4s both" }}
             >
-              NEW SEASON
-            </Title>
-            <Text size="xl" ta="center" maw={500} fw={300} lts={1}>
-              Elevated essentials for the modern wardrobe.
+              Experience the finest craftsmanship in men's apparel. Tailored by
+              heritage, worn by you.
             </Text>
-            <Button
-              size="lg"
-              variant="white"
-              color="dark"
-              radius="xl"
-              px={40}
-              fw={400}
-              tt="uppercase"
+
+            <Group
+              gap="md"
+              mt="xl"
+              style={{ animation: "fadeInUp 1s ease-out 0.6s both" }}
             >
-              Shop Collection
-            </Button>
+              <Button
+                variant="white"
+                color="dark"
+                size="xl"
+                radius="0"
+                px={50}
+                fw={700}
+                tt="uppercase"
+                lts={2}
+                style={{ transition: "all 0.3s ease" }}
+                onClick={() => (window.location.href = "/products")}
+              >
+                Shop Collection
+              </Button>
+            </Group>
           </Stack>
         </Box>
+
+        <style jsx global>{`
+          @keyframes slowZoom {
+            from {
+              transform: scale(1);
+            }
+            to {
+              transform: scale(1.1);
+            }
+          }
+          @keyframes fadeInUp {
+            from {
+              opacity: 0;
+              transform: translateY(30px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+        `}</style>
       </Box>
       <CategoryShowcase />
       <ValueProposition />

@@ -94,6 +94,7 @@ export async function POST(request: NextRequest) {
         fabricType: data.fabricType,
         fabricGSM: data.fabricGSM,
         designType: data.designType,
+        categoryId: data.categoryId,
         colors: data.colors, // Client sends stringified JSON or plain string
         sizes: data.sizes, // Client sends stringified JSON or plain string
         featured: data.featured || false,

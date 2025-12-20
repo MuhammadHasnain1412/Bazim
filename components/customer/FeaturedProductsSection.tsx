@@ -22,11 +22,7 @@ interface Product {
   featured: boolean;
   images: { id: string }[];
   colors: string;
-  category: {
-    id: string;
-    name: string;
-    slug: string;
-  };
+  fabricType: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -78,7 +74,7 @@ export function FeaturedProductsSection() {
       name: product.name,
       price: product.price,
       image: imageId ? `/api/upload?id=${imageId}` : "/images/testimg.jpeg",
-      category: product.category?.name || "Uncategorized",
+      fabricType: product.fabricType || "Premium Fabric",
       inStock: product.stock > 0,
       colors: colors,
       badge: product.featured ? "Featured" : undefined,

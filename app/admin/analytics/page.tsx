@@ -25,8 +25,8 @@ interface OrderStatus {
   count: number;
 }
 
-interface CategorySale {
-  category: string;
+interface FabricSale {
+  fabric: string;
   quantity: number;
 }
 
@@ -45,7 +45,7 @@ export default function AdminAnalyticsPage() {
   const [analyticsData, setAnalyticsData] = useState({
     dailySales: [] as DailySale[],
     orderStatusDistribution: [] as OrderStatus[],
-    categorySales: [] as CategorySale[],
+    fabricSales: [] as FabricSale[],
     monthlyRevenue: [] as MonthlyRevenue[],
     customerMetrics: {
       totalCustomers: 0,
@@ -170,11 +170,11 @@ export default function AdminAnalyticsPage() {
           </Stack>
         </SectionCard>
 
-        <SectionCard title="Top Categories">
+        <SectionCard title="Top Fabrics">
           <Stack gap="sm">
-            {analyticsData.categorySales.slice(0, 5).map((category, index) => (
+            {analyticsData.fabricSales.slice(0, 5).map((fabric, index) => (
               <Group
-                key={category.category}
+                key={fabric.fabric}
                 justify="space-between"
                 py={8}
                 style={{ borderBottom: "1px solid #f8f9fa" }}
@@ -184,11 +184,11 @@ export default function AdminAnalyticsPage() {
                     0{index + 1}
                   </Text>
                   <Text size="sm" fw={500}>
-                    {category.category}
+                    {fabric.fabric}
                   </Text>
                 </Group>
                 <Text size="sm" fw={600}>
-                  {category.quantity} units
+                  {fabric.quantity} units
                 </Text>
               </Group>
             ))}

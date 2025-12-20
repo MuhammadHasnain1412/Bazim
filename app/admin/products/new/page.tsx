@@ -19,6 +19,7 @@ import { useRouter } from "next/navigation";
 import { ImageUploader } from "@/components/admin/ImageUploader";
 import { safeLocalStorage } from "@/lib/localStorage";
 import { notifications } from "@mantine/notifications";
+import { useState, useEffect } from "react";
 
 interface CreateProductForm {
   name: string;
@@ -26,6 +27,7 @@ interface CreateProductForm {
   description: string;
   price: number;
   stock: number;
+  categoryId: string;
   fabricType: string;
   fabricGSM: string;
   designType: string;
@@ -37,6 +39,10 @@ interface CreateProductForm {
 export default function NewProductPage() {
   const router = useRouter();
 
+  const [categories, setCategories] = useState<
+    { value: string; label: string }[]
+  >([]);
+
   const form = useForm<CreateProductForm>({
     initialValues: {
       name: "",
@@ -44,6 +50,7 @@ export default function NewProductPage() {
       description: "",
       price: 0,
       stock: 0,
+      categoryId: "",
       fabricType: "",
       fabricGSM: "",
       designType: "",

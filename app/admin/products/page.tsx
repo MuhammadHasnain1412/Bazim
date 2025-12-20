@@ -100,7 +100,7 @@ export default function AdminProductsPage() {
               </Table.Th>
               <Table.Th>
                 <Text size="xs" fw={500} c="dimmed" tt="uppercase" lts={1}>
-                  Category
+                  Fabric
                 </Text>
               </Table.Th>
               <Table.Th>
@@ -135,9 +135,7 @@ export default function AdminProductsPage() {
                 </Table.Td>
                 <Table.Td>
                   <Badge variant="light" color="gray" size="sm" radius="sm">
-                    {product.category?.name ||
-                      product.fabricType ||
-                      "Uncategorized"}
+                    {product.fabricType || "Premium"}
                   </Badge>
                 </Table.Td>
                 <Table.Td>

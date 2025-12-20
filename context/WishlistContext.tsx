@@ -14,7 +14,7 @@ interface WishlistItem {
   name: string;
   price: number;
   image: string;
-  category: string;
+  fabricType: string;
   inStock: boolean;
   colors?: string[];
 }

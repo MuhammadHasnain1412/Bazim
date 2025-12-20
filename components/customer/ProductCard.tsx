@@ -25,7 +25,7 @@ export interface ProductCardProps {
   price: number;
   originalPrice?: number;
   image: string;
-  category: string;
+  fabricType: string;
   inStock: boolean;
   colors?: string[];
   badge?: string;
@@ -38,7 +38,7 @@ export function ProductCard({
   price,
   originalPrice,
   image,
-  category,
+  fabricType,
   inStock,
   colors = [],
   badge,
@@ -58,7 +58,7 @@ export function ProductCard({
       name,
       price,
       image,
-      category,
+      fabricType,
       inStock,
       colors,
     });
@@ -258,7 +258,7 @@ export function ProductCard({
               {name}
             </Text>
             <Text size="xs" c="dimmed" tt="uppercase" lts={0.5} fw={500}>
-              {category}
+              {fabricType}
             </Text>
           </Link>
 

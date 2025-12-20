@@ -65,6 +65,9 @@ export default function EditProductPage({
   const router = useRouter();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
+  const [categories, setCategories] = useState<
+    { value: string; label: string }[]
+  >([]);
   const [submitting, setSubmitting] = useState(false);
 
   const form = useForm<EditProductForm>({
@@ -108,10 +111,9 @@ export default function EditProductPage({
             price: Number(productData.price),
             stock: productData.stock,
             categoryId: productData.categoryId,
-            fabricType: productData.fabricType,
             fabricGSM: productData.fabricGSM,
             designType: productData.designType,
-            images: productData.images || [],
+            images: productData.images?.map((img: any) => img.id) || [],
             colors: Array.isArray(productData.colors)
               ? productData.colors.join(", ")
               : productData.colors,
@@ -139,7 +141,7 @@ export default function EditProductPage({
     };
 
     fetchProduct();
-  }, [params, router, form]);
+  }, [params, router]);
 
   const handleSubmit = async (values: EditProductForm) => {
     setSubmitting(true);
@@ -155,8 +157,9 @@ export default function EditProductPage({
         },
         body: JSON.stringify({
           ...values,
+          price: Number(values.price),
           colors: values.colors.split(",").map((color) => color.trim()),
-          sizes: "[]",
+          sizes: JSON.stringify([]),
         }),
       });
 
@@ -241,21 +244,6 @@ export default function EditProductPage({
 
             <GridCol span={{ base: 12, md: 6 }}>
               <Stack gap="md">
-                <Select
-                  label="Category"
-                  placeholder="Select category"
-                  data={[
-                    { value: "shalwar-kameez", label: "Shalwar Kameez" },
-                    { value: "kurta", label: "Kurta" },
-                    { value: "waistcoat", label: "Waistcoat" },
-                    { value: "sherwani", label: "Sherwani" },
-                    { value: "pathani-suit", label: "Pathani Suit" },
-                    { value: "pant-shirt", label: "Pant Shirt" },
-                  ]}
-                  {...form.getInputProps("categoryId")}
-                  required
-                />
-
                 <TextInput
                   label="Fabric Type"
                   placeholder="Cotton, Silk, etc."
