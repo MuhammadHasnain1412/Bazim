@@ -3,10 +3,20 @@
 import { createTheme, rem } from "@mantine/core";
 
 export const theme = createTheme({
-  primaryColor: "dark",
+  primaryColor: "bazim-navy",
   colors: {
-    // We can define a custom 'dark' or 'neutral' scale if needed,
-    // but standard grays often work well for minimal designs.
+    "bazim-navy": [
+      "#eef1f6",
+      "#d8e0ea",
+      "#afbfd2",
+      "#829db9",
+      "#5d80a3",
+      "#466a91",
+      "#395f89",
+      "#2c5078",
+      "#24476c",
+      "#0d2137", // Base navy from logo at index 9
+    ],
   },
 
   fontFamily: "var(--font-inter)",

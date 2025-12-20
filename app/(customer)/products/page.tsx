@@ -2,7 +2,6 @@
 
 // app/(customer)/products/page.tsx
 import { ProductCard } from "@/components/customer/ProductCard";
-import { ShopHero } from "@/components/customer/ShopHero";
 import {
   Container,
   Grid,
@@ -135,14 +134,36 @@ export default function ProductsPage() {
   if (loading)
     return (
       <>
-        {" "}
-        <ShopHero /> {skeletons}{" "}
+        <Box bg="#0d2137" py={60}>
+          <Container size="xl">
+            <Stack align="center" gap="xs">
+              <Title order={1} c="white" tt="uppercase" lts={2} fw={800}>
+                Shop Collection
+              </Title>
+              <Text c="gray.4" size="lg">
+                Discover our premium unstitched fabrics
+              </Text>
+            </Stack>
+          </Container>
+        </Box>
+        {skeletons}
       </>
     );
 
   return (
     <Box bg="gray.0" style={{ minHeight: "100vh" }}>
-      <ShopHero />
+      <Box bg="#0d2137" py={60}>
+        <Container size="xl">
+          <Stack align="center" gap="xs">
+            <Title order={1} c="white" tt="uppercase" lts={2} fw={800}>
+              Shop Collection
+            </Title>
+            <Text c="gray.4" size="lg">
+              Discover our premium unstitched fabrics
+            </Text>
+          </Stack>
+        </Container>
+      </Box>
 
       <Container size="xl" py={60}>
         <Grid gutter={40}>
@@ -292,19 +313,6 @@ export default function ProductsPage() {
           </GridCol>
         </Grid>
       </Container>
-
-      <style jsx global>{`
-        @keyframes fadeUp {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-      `}</style>
     </Box>
   );
 }

@@ -21,23 +21,45 @@ export function Navbar() {
   return (
     <Box
       component="header"
-      py="md"
+      py={0}
       style={{
         position: "sticky",
         top: 0,
-        zIndex: 100,
+        zIndex: 110,
         backgroundColor: "rgba(255, 255, 255, 0.8)",
         backdropFilter: "blur(12px)",
         borderBottom: "1px solid rgba(0,0,0,0.05)",
       }}
     >
+      {/* SVG Filter to remove white background from logo */}
+      <svg width="0" height="0" style={{ position: "absolute" }}>
+        <filter id="remove-white" colorInterpolationFilters="sRGB">
+          <feColorMatrix
+            type="matrix"
+            values="1 0 0 0 0
+                    0 1 0 0 0
+                    0 0 1 0 0
+                    -1 -1 -1 3 0"
+          />
+        </filter>
+      </svg>
+
       <Container size="xl">
-        <Group justify="space-between" align="center">
+        <Group justify="space-between" align="center" h={110}>
           {/* Logo */}
           <Link href="/" style={{ textDecoration: "none" }}>
-            <Title order={1} size={22} fw={800} lts={1} c="dark">
-              BAZIM
-            </Title>
+            <Group gap="sm">
+              <img
+                src="/logo.png?v=11"
+                alt="Bazim"
+                style={{
+                  height: "110px",
+                  width: "auto",
+                  filter: "url(#remove-white) contrast(1.1)",
+                  display: "block",
+                }}
+              />
+            </Group>
           </Link>
 
           {/* Navigation */}

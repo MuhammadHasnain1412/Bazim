@@ -10,32 +10,53 @@ import {
   Badge,
   Text,
   Paper,
+  TextInput,
+  Image,
+  Box,
+  rem,
 } from "@mantine/core";
-import { IconPlus, IconPencil, IconTrash } from "@tabler/icons-react";
-import { useEffect, useState } from "react";
+import {
+  IconPlus,
+  IconPencil,
+  IconTrash,
+  IconSearch,
+  IconPackage,
+} from "@tabler/icons-react";
+import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import { safeLocalStorage } from "@/lib/localStorage";
 import { notifications } from "@mantine/notifications";
 
 export default function AdminProductsPage() {
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState<any[]>([]);
+  const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchProducts();
   }, []);
 
   const fetchProducts = async () => {
+    setLoading(true);
     try {
       const response = await fetch("/api/products");
       const data = await response.json();
-      setProducts(data.products);
+      setProducts(data.products || []);
     } catch (error) {
       console.error("Failed to fetch products:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (confirm("Are you sure you want to delete this product?")) {
+  const filteredProducts = useMemo(() => {
+    return products.filter((product) =>
+      product.name.toLowerCase().includes(search.toLowerCase())
+    );
+  }, [products, search]);
+
+  const handleDelete = async (id: string, name: string) => {
+    if (confirm(`Are you sure you want to delete "${name}"?`)) {
       try {
         const token = safeLocalStorage.getItem("adminToken");
 
@@ -48,9 +69,10 @@ export default function AdminProductsPage() {
 
         if (response.ok) {
           notifications.show({
-            title: "Success",
-            message: "Product deleted successfully",
-            color: "green",
+            title: "Deleted",
+            message: `${name} has been removed from inventory`,
+            color: "dark",
+            radius: "xs",
           });
           fetchProducts();
         } else {
@@ -73,113 +95,197 @@ export default function AdminProductsPage() {
   };
 
   return (
-    <Stack gap="xl">
-      <Group justify="space-between">
-        <Title order={2} fw={600} lts={1} tt="uppercase" size={24}>
-          Products
-        </Title>
+    <Stack gap={40} pb={60}>
+      <Group justify="space-between" align="flex-end">
+        <Stack gap={4}>
+          <Title order={1} size={rem(28)} fw={800} lts={1} tt="uppercase">
+            Inventory
+          </Title>
+          <Text c="dimmed" size="sm">
+            Manage your unstitched fabric collection
+          </Text>
+        </Stack>
         <Button
           component={Link}
           href="/admin/products/new"
           leftSection={<IconPlus size={18} />}
-          color="dark"
-          radius="md"
+          color="black"
+          radius="0"
+          size="md"
+          tt="uppercase"
+          lts={1}
+          fw={700}
         >
           Add Product
         </Button>
       </Group>
 
-      <Paper p={0} bg="transparent">
-        <Table verticalSpacing="md" withRowBorders={true}>
-          <Table.Thead>
-            <Table.Tr>
-              <Table.Th>
-                <Text size="xs" fw={500} c="dimmed" tt="uppercase" lts={1}>
-                  Name
-                </Text>
-              </Table.Th>
-              <Table.Th>
-                <Text size="xs" fw={500} c="dimmed" tt="uppercase" lts={1}>
-                  Fabric
-                </Text>
-              </Table.Th>
-              <Table.Th>
-                <Text size="xs" fw={500} c="dimmed" tt="uppercase" lts={1}>
-                  Price
-                </Text>
-              </Table.Th>
-              <Table.Th>
-                <Text size="xs" fw={500} c="dimmed" tt="uppercase" lts={1}>
-                  Stock
-                </Text>
-              </Table.Th>
-              <Table.Th>
-                <Text size="xs" fw={500} c="dimmed" tt="uppercase" lts={1}>
-                  Status
-                </Text>
-              </Table.Th>
-              <Table.Th style={{ textAlign: "right" }}>
-                <Text size="xs" fw={500} c="dimmed" tt="uppercase" lts={1}>
-                  Actions
-                </Text>
-              </Table.Th>
-            </Table.Tr>
-          </Table.Thead>
-          <Table.Tbody>
-            {products.map((product: any) => (
-              <Table.Tr key={product.id}>
-                <Table.Td>
-                  <Text fw={500} size="sm">
-                    {product.name}
+      <Paper
+        p="xl"
+        radius="md"
+        style={{
+          border: "1px solid #f1f3f5",
+          backgroundColor: "#fff",
+        }}
+      >
+        <Stack gap="xl">
+          <TextInput
+            placeholder="Search products by name..."
+            size="md"
+            leftSection={<IconSearch size={18} stroke={1.5} />}
+            value={search}
+            onChange={(e) => setSearch(e.currentTarget.value)}
+            variant="filled"
+            radius="md"
+            maw={400}
+          />
+
+          <Table verticalSpacing="md" withRowBorders={true} highlightOnHover>
+            <Table.Thead>
+              <Table.Tr>
+                <Table.Th>
+                  <Text size="xs" fw={700} c="dimmed" tt="uppercase" lts={1}>
+                    Product
                   </Text>
-                </Table.Td>
-                <Table.Td>
-                  <Badge variant="light" color="gray" size="sm" radius="sm">
-                    {product.fabricType || "Premium"}
-                  </Badge>
-                </Table.Td>
-                <Table.Td>
-                  <Text size="sm" fw={500}>
-                    Rs {Number(product.price).toFixed(0)}
+                </Table.Th>
+                <Table.Th>
+                  <Text size="xs" fw={700} c="dimmed" tt="uppercase" lts={1}>
+                    Fabric Type
                   </Text>
-                </Table.Td>
-                <Table.Td>
-                  <Text size="sm">{product.stock}</Text>
-                </Table.Td>
-                <Table.Td>
-                  <Badge
-                    color={product.stock > 0 ? "dark" : "red"}
-                    variant="dot"
-                    size="sm"
-                  >
-                    {product.stock > 0 ? "In Stock" : "Out of Stock"}
-                  </Badge>
-                </Table.Td>
-                <Table.Td style={{ textAlign: "right" }}>
-                  <Group gap="xs" justify="flex-end">
-                    <ActionIcon
-                      component={Link}
-                      href={`/admin/products/${product.id}/edit`}
-                      variant="subtle"
-                      color="dark"
-                      size="sm"
-                    >
-                      <IconPencil size={18} />
-                    </ActionIcon>
-                    <ActionIcon
-                      variant="subtle"
-                      color="red"
-                      size="sm"
-                      onClick={() => handleDelete(product.id)}
-                    >
-                      <IconTrash size={18} />
-                    </ActionIcon>
-                  </Group>
-                </Table.Td>
+                </Table.Th>
+                <Table.Th>
+                  <Text size="xs" fw={700} c="dimmed" tt="uppercase" lts={1}>
+                    Price
+                  </Text>
+                </Table.Th>
+                <Table.Th>
+                  <Text size="xs" fw={700} c="dimmed" tt="uppercase" lts={1}>
+                    Stock
+                  </Text>
+                </Table.Th>
+                <Table.Th>
+                  <Text size="xs" fw={700} c="dimmed" tt="uppercase" lts={1}>
+                    Status
+                  </Text>
+                </Table.Th>
+                <Table.Th style={{ textAlign: "right" }}>
+                  <Text size="xs" fw={700} c="dimmed" tt="uppercase" lts={1}>
+                    Actions
+                  </Text>
+                </Table.Th>
               </Table.Tr>
-            ))}
-          </Table.Tbody>
-        </Table>
+            </Table.Thead>
+            <Table.Tbody>
+              {filteredProducts.map((product: any) => {
+                const images = product.images || [];
+                const mainImage = images.length > 0 ? images[0].id : null;
+
+                return (
+                  <Table.Tr key={product.id}>
+                    <Table.Td>
+                      <Group gap="sm">
+                        <Box
+                          w={48}
+                          h={48}
+                          bg="gray.1"
+                          style={{
+                            borderRadius: "8px",
+                            overflow: "hidden",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                          }}
+                        >
+                          {mainImage ? (
+                            <Image
+                              src={`/api/upload?id=${mainImage}`}
+                              alt={product.name}
+                              fit="cover"
+                            />
+                          ) : (
+                            <IconPackage size={20} color="gray" />
+                          )}
+                        </Box>
+                        <Text fw={600} size="sm">
+                          {product.name}
+                        </Text>
+                      </Group>
+                    </Table.Td>
+                    <Table.Td>
+                      <Badge variant="light" color="gray" size="sm" radius="sm">
+                        {product.fabricType || "Premium"}
+                      </Badge>
+                    </Table.Td>
+                    <Table.Td>
+                      <Text size="sm" fw={700}>
+                        Rs {Number(product.price).toLocaleString()}
+                      </Text>
+                    </Table.Td>
+                    <Table.Td>
+                      <Text size="sm" fw={500}>
+                        {product.stock}
+                      </Text>
+                    </Table.Td>
+                    <Table.Td>
+                      <Badge
+                        color={product.stock > 0 ? "green.6" : "red.6"}
+                        variant="dot"
+                        size="sm"
+                        fw={700}
+                        tt="uppercase"
+                      >
+                        {product.stock > 0 ? "In Stock" : "Out of Stock"}
+                      </Badge>
+                    </Table.Td>
+                    <Table.Td style={{ textAlign: "right" }}>
+                      <Group gap="xs" justify="flex-end">
+                        <ActionIcon
+                          component={Link}
+                          href={`/admin/products/${product.id}/edit`}
+                          variant="subtle"
+                          color="dark"
+                          size="md"
+                        >
+                          <IconPencil size={18} stroke={1.5} />
+                        </ActionIcon>
+                        <ActionIcon
+                          variant="subtle"
+                          color="red.8"
+                          size="md"
+                          onClick={() => handleDelete(product.id, product.name)}
+                        >
+                          <IconTrash size={18} stroke={1.5} />
+                        </ActionIcon>
+                      </Group>
+                    </Table.Td>
+                  </Table.Tr>
+                );
+              })}
+            </Table.Tbody>
+          </Table>
+
+          {!loading && filteredProducts.length === 0 && (
+            <Stack align="center" py={60} gap="xs">
+              <IconSearch size={40} color="gray" stroke={1} />
+              <Text c="dimmed" size="sm">
+                No products found matching your search.
+              </Text>
+            </Stack>
+          )}
+
+          {loading && (
+            <Text
+              ta="center"
+              py={60}
+              c="dimmed"
+              size="sm"
+              tt="uppercase"
+              lts={1}
+            >
+              Loading Inventory...
+            </Text>
+          )}
+        </Stack>
       </Paper>
     </Stack>
   );

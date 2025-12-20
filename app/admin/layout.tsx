@@ -47,31 +47,45 @@ export default function AdminLayout({
         style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}
       >
         <Paper
-          h={80}
+          h={120}
           style={{
             position: "sticky",
             top: 0,
-            zIndex: 100,
+            zIndex: 110,
             backgroundColor: "rgba(255, 255, 255, 0.8)",
             backdropFilter: "blur(12px)",
             borderBottom: "1px solid rgba(0,0,0,0.05)",
           }}
           radius={0}
         >
+          {/* SVG Filter to remove white background from logo */}
+          <svg width="0" height="0" style={{ position: "absolute" }}>
+            <filter id="remove-white-admin" colorInterpolationFilters="sRGB">
+              <feColorMatrix
+                type="matrix"
+                values="1 0 0 0 0
+                        0 1 0 0 0
+                        0 0 1 0 0
+                        -1 -1 -1 3 0"
+              />
+            </filter>
+          </svg>
+
           <Container size="xl" h="100%">
             <Group justify="space-between" h="100%">
-              <Text
-                component={Link}
-                href="/admin"
-                size="xl"
-                fw={900}
-                tt="uppercase"
-                lts={2}
-                c="dark"
-                style={{ textDecoration: "none" }}
-              >
-                Bazim Admin
-              </Text>
+              <Link href="/admin" style={{ textDecoration: "none" }}>
+                <Group gap="xs">
+                  <img
+                    src="/logo.png?v=11"
+                    alt="Bazim"
+                    style={{
+                      height: "100px",
+                      width: "auto",
+                      filter: "url(#remove-white-admin) contrast(1.1)",
+                    }}
+                  />
+                </Group>
+              </Link>
 
               <Group gap={40} visibleFrom="sm">
                 {links.map((link) => (

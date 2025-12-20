@@ -12,7 +12,7 @@ import { IconMail } from "@tabler/icons-react";
 
 export function NewsletterSection() {
   return (
-    <Box bg="black" py={80}>
+    <Box bg="#0d2137" py={80}>
       <Container size="xl">
         <Stack align="center" gap="lg" c="white">
           <Title

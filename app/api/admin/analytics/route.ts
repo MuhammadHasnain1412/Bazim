@@ -7,12 +7,12 @@ export async function GET(request: NextRequest) {
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-    const dailySales = await prisma.$queryRaw`
+    const dailySales = await prisma.$queryRaw<any[]>`
       SELECT 
         DATE(createdAt) as date,
         COUNT(*) as orders,
         SUM(total) as revenue
-      FROM Order 
+      FROM \`Order\` 
       WHERE createdAt >= ${thirtyDaysAgo}
       GROUP BY DATE(createdAt)
       ORDER BY date ASC
@@ -20,48 +20,47 @@ export async function GET(request: NextRequest) {
 
     // Get order status distribution
     const orderStatusDistribution = await prisma.order.groupBy({
-      by: ['status'],
+      by: ["status"],
       _count: {
-        id: true
-      }
+        id: true,
+      },
     });
 
-    // Get top categories by sales
-    const categorySales = await prisma.orderItem.groupBy({
-      by: ['productId'],
+    // Get top fabric types by sales
+    const productSales = await prisma.orderItem.groupBy({
+      by: ["productId"],
       _sum: {
-        quantity: true
+        quantity: true,
       },
       orderBy: {
         _sum: {
-          quantity: 'desc'
-        }
+          quantity: "desc",
+        },
       },
-      take: 10
+      take: 20,
     });
 
-    const productIds = categorySales.map(item => item.productId);
+    const productIds = productSales.map((item) => item.productId);
     const products = await prisma.product.findMany({
       where: {
         id: {
-          in: productIds
-        }
+          in: productIds,
+        },
       },
-      include: {
-        category: true
-      }
     });
 
-    // Group by category
-    const categoryData = products.reduce((acc: any, product) => {
-      const categoryName = product.category?.name || "Uncategorized";
-      const salesItem = categorySales.find(item => item.productId === product.id);
+    // Group by fabric type
+    const fabricData = products.reduce((acc: any, product) => {
+      const fabricName = product.fabricType || "Premium";
+      const salesItem = productSales.find(
+        (item) => item.productId === product.id
+      );
       const quantity = salesItem?._sum.quantity || 0;
-      
-      if (!acc[categoryName]) {
-        acc[categoryName] = 0;
+
+      if (!acc[fabricName]) {
+        acc[fabricName] = 0;
       }
-      acc[categoryName] += quantity;
+      acc[fabricName] += quantity;
       return acc;
     }, {});
 
@@ -69,12 +68,12 @@ export async function GET(request: NextRequest) {
     const sixMonthsAgo = new Date();
     sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
 
-    const monthlyRevenue = await prisma.$queryRaw`
+    const monthlyRevenue = await prisma.$queryRaw<any[]>`
       SELECT 
         DATE_FORMAT(createdAt, '%Y-%m') as month,
         COUNT(*) as orders,
         SUM(total) as revenue
-      FROM Order 
+      FROM \`Order\` 
       WHERE createdAt >= ${sixMonthsAgo}
       GROUP BY DATE_FORMAT(createdAt, '%Y-%m')
       ORDER BY month ASC
@@ -83,46 +82,46 @@ export async function GET(request: NextRequest) {
     // Get customer metrics
     const totalCustomers = await prisma.user.count({
       where: {
-        role: 'CUSTOMER'
-      }
+        role: "CUSTOMER",
+      },
     });
 
     const newCustomersThisMonth = await prisma.user.count({
       where: {
-        role: 'CUSTOMER',
+        role: "CUSTOMER",
         createdAt: {
-          gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1)
-        }
-      }
+          gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+        },
+      },
     });
 
     // Get average order value
     const orderStats = await prisma.order.aggregate({
       _avg: {
-        total: true
+        total: true,
       },
       _count: {
-        id: true
-      }
+        id: true,
+      },
     });
 
     return NextResponse.json({
       dailySales,
-      orderStatusDistribution: orderStatusDistribution.map(item => ({
+      orderStatusDistribution: orderStatusDistribution.map((item) => ({
         status: item.status,
-        count: item._count.id
+        count: item._count.id,
       })),
-      categorySales: Object.entries(categoryData).map(([category, quantity]) => ({
-        category,
-        quantity
+      fabricSales: Object.entries(fabricData).map(([fabric, quantity]) => ({
+        fabric,
+        quantity,
       })),
       monthlyRevenue,
       customerMetrics: {
         totalCustomers,
-        newCustomersThisMonth
+        newCustomersThisMonth,
       },
-      averageOrderValue: orderStats._avg.total || 0,
-      totalOrders: orderStats._count.id
+      averageOrderValue: Number(orderStats._avg.total || 0),
+      totalOrders: orderStats._count.id,
     });
   } catch (error) {
     console.error("Analytics data error:", error);

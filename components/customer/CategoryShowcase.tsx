@@ -7,35 +7,35 @@ import { useState } from "react";
 const categories = [
   {
     id: "summer",
-    title: "The Summer Edit",
-    description: "Premium Lawn & Cotton",
+    title: "Summer Breeze",
+    description: "Premium Men's Unstitched Lawn & Cotton",
     image:
-      "https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?q=80&w=1000&auto=format&fit=crop",
-    link: "/products?category=lawn",
+      "https://images.unsplash.com/photo-1524234107056-1c1f48f64ab8?q=80&w=1000&auto=format&fit=crop",
+    link: "/products?fabric=lawn",
   },
   {
     id: "winter",
-    title: "Winter Tales",
-    description: "Warm Khaddar & Wool",
+    title: "The Winter Edit",
+    description: "Authentic Unstitched Khaddar & Wool",
     image:
-      "https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=1000&auto=format&fit=crop",
-    link: "/products?category=khaddar",
+      "https://images.unsplash.com/photo-1463100099107-aa0980c362e6?q=80&w=1000&auto=format&fit=crop",
+    link: "/products?fabric=khaddar",
   },
   {
-    id: "autumn",
-    title: "Autumn Breeze",
-    description: "Cambric & Linen",
+    id: "formal",
+    title: "Signature Silk",
+    description: "Luxury Unstitched Embroidered Silk",
     image:
-      "https://images.unsplash.com/photo-1556905055-8f358a18e47f?q=80&w=1000&auto=format&fit=crop",
-    link: "/products?category=cambric",
+      "https://images.unsplash.com/photo-1554568218-0f1715e72254?q=80&w=1000&auto=format&fit=crop",
+    link: "/products?fabric=silk",
   },
   {
-    id: "spring",
-    title: "Spring Festive",
-    description: "Luxury Silk & Chiffon",
+    id: "classic",
+    title: "Classic Cambric",
+    description: "Versatile Mid-Season Unstitched Fabrics",
     image:
-      "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=1000&auto=format&fit=crop",
-    link: "/products?category=silk",
+      "https://images.unsplash.com/photo-1528459801416-a7e99a0dce3a?q=80&w=1000&auto=format&fit=crop",
+    link: "/products?fabric=cambric",
   },
 ];
 
