@@ -13,8 +13,10 @@ import { IconHeart, IconShoppingCart } from "@tabler/icons-react";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
+import { usePathname } from "next/navigation";
 
 export function Navbar() {
+  const pathname = usePathname();
   const { itemCount } = useCart();
   const { wishlist } = useWishlist();
 
@@ -64,11 +66,11 @@ export function Navbar() {
             <Link href="/" style={{ textDecoration: "none" }}>
               <Text
                 size="sm"
-                fw={500}
-                c="dark"
+                fw={pathname === "/" ? 700 : 500}
+                c={pathname === "/" ? "bazim-navy" : "gray.6"}
                 tt="uppercase"
                 lts={1}
-                style={{ transition: "opacity 0.2s" }}
+                style={{ transition: "all 0.2s" }}
               >
                 Home
               </Text>
@@ -76,11 +78,11 @@ export function Navbar() {
             <Link href="/products" style={{ textDecoration: "none" }}>
               <Text
                 size="sm"
-                fw={500}
-                c="dark"
+                fw={pathname.startsWith("/products") ? 700 : 500}
+                c={pathname.startsWith("/products") ? "bazim-navy" : "gray.6"}
                 tt="uppercase"
                 lts={1}
-                style={{ transition: "opacity 0.2s" }}
+                style={{ transition: "all 0.2s" }}
               >
                 Shop
               </Text>
@@ -91,7 +93,7 @@ export function Navbar() {
             <Indicator
               label={wishlist.length}
               size={16}
-              color="black"
+              color="bazim-navy"
               disabled={wishlist.length === 0}
               offset={4}
               styles={{
@@ -102,7 +104,7 @@ export function Navbar() {
               }}
             >
               <Link href="/wishlist" style={{ textDecoration: "none" }}>
-                <ActionIcon variant="transparent" c="dark" size="lg">
+                <ActionIcon variant="transparent" c="bazim-navy" size="lg">
                   <IconHeart size={20} stroke={1.5} />
                 </ActionIcon>
               </Link>
@@ -111,7 +113,7 @@ export function Navbar() {
             <Indicator
               label={itemCount}
               size={16}
-              color="black"
+              color="bazim-navy"
               disabled={itemCount === 0}
               offset={4}
               styles={{
@@ -122,7 +124,7 @@ export function Navbar() {
               }}
             >
               <Link href="/cart" style={{ textDecoration: "none" }}>
-                <ActionIcon variant="transparent" c="dark" size="lg">
+                <ActionIcon variant="transparent" c="bazim-navy" size="lg">
                   <IconShoppingCart size={20} stroke={1.5} />
                 </ActionIcon>
               </Link>

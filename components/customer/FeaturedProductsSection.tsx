@@ -12,6 +12,7 @@ import {
 import Link from "next/link";
 import { ProductCard } from "./ProductCard";
 import { useEffect, useState } from "react";
+import { DEFAULT_PRODUCT_IMAGE } from "@/lib/constants";
 
 interface Product {
   id: string;
@@ -60,7 +61,17 @@ export function FeaturedProductsSection() {
       images = JSON.parse(product.images || "[]");
     }
 
-    const colors = JSON.parse(product.colors || "[]");
+    let colors = [];
+    try {
+      colors = JSON.parse(product.colors || "[]");
+    } catch (e) {
+      // If parsing fails, it might be a comma-separated string or just a plain string
+      if (product.colors) {
+        colors = product.colors.includes(",")
+          ? product.colors.split(",").map((c) => c.trim())
+          : [product.colors];
+      }
+    }
 
     // If it's the new format with objects, get the ID. If legacy string array, use it directly (assuming URL).
     // Actually new API returns { id } objects.

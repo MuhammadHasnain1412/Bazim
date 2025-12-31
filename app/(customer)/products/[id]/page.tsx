@@ -30,11 +30,6 @@ interface Product {
   featured: boolean;
   images: any;
   colors: string;
-  category: {
-    id: string;
-    name: string;
-    slug: string;
-  };
   reviews: {
     id: string;
     rating: number;
@@ -123,9 +118,18 @@ export default function ProductPage() {
 
     let colors: string[] = [];
     try {
-      colors = JSON.parse(product.colors || "[]");
+      const parsed = JSON.parse(product.colors || "[]");
+      if (Array.isArray(parsed)) {
+        colors = parsed;
+      } else if (typeof parsed === "string") {
+        colors = [parsed];
+      }
     } catch (e) {
-      console.error("Error parsing colors", e);
+      if (product.colors) {
+        colors = product.colors.includes(",")
+          ? product.colors.split(",").map((c) => c.trim())
+          : [product.colors];
+      }
     }
 
     const reviews = product.reviews || [];
@@ -139,7 +143,7 @@ export default function ProductPage() {
       name: product.name,
       price: product.price,
       image: imageUrl,
-      category: product.category?.name || "Uncategorized",
+      fabricType: "Premium Fabric", // Replaced category with hardcoded or other field, since category is gone
       inStock: product.stock > 0,
       colors: colors,
       badge: product.featured ? "Featured" : undefined,

@@ -12,6 +12,7 @@ import {
   ActionIcon,
   Transition,
 } from "@mantine/core";
+import { DEFAULT_PRODUCT_IMAGE } from "@/lib/constants";
 import { IconHeart, IconPlus } from "@tabler/icons-react";
 import { useState } from "react";
 import Link from "next/link";
@@ -70,22 +71,16 @@ export function ProductCard({
     });
   };
 
-  const handleAddToCart = (e: React.MouseEvent) => {
+  const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    addToCart({
+    await addToCart({
       productId: id,
       name,
       price,
       quantity: 1,
       image,
       color: colors[0],
-    });
-    notifications.show({
-      title: "Basket Updated",
-      message: `${name} added to your basket`,
-      color: "black",
-      radius: "xs",
     });
   };
 
@@ -134,7 +129,7 @@ export function ProductCard({
           {badge && (
             <Badge
               variant="filled"
-              color="black"
+              color="bazim-navy"
               radius="0"
               size="xs"
               tt="uppercase"
@@ -189,7 +184,11 @@ export function ProductCard({
           <IconHeart
             size={22}
             stroke={1.5}
-            color={isWishlisted ? "var(--mantine-color-red-9)" : "black"}
+            color={
+              isWishlisted
+                ? "var(--mantine-color-red-9)"
+                : "var(--mantine-color-bazim-navy-6)"
+            }
             fill={isWishlisted ? "currentColor" : "none"}
           />
         </ActionIcon>
@@ -218,7 +217,7 @@ export function ProductCard({
               <Button
                 fullWidth
                 variant="filled"
-                color="black"
+                color="bazim-navy"
                 radius="0"
                 size="md"
                 tt="uppercase"

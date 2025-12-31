@@ -5,7 +5,6 @@ import { getUserFromRequest } from "@/lib/auth";
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const category = searchParams.get("category");
     const fabric = searchParams.get("fabric");
     const featured = searchParams.get("featured");
     const search = searchParams.get("search");
@@ -14,13 +13,9 @@ export async function GET(request: NextRequest) {
 
     const filterClauses: any[] = [];
 
-    if (category || fabric) {
-      const filterValue = category || fabric;
+    if (fabric) {
       filterClauses.push({
-        OR: [
-          { category: { slug: filterValue } },
-          { fabricType: { contains: filterValue } },
-        ],
+        fabricType: { contains: fabric },
       });
     }
 
@@ -44,7 +39,6 @@ export async function GET(request: NextRequest) {
     const products = await prisma.product.findMany({
       where,
       include: {
-        category: true,
         images: {
           select: {
             id: true,
@@ -90,9 +84,10 @@ export async function POST(request: NextRequest) {
         fabricType: data.fabricType,
         fabricGSM: data.fabricGSM,
         designType: data.designType,
-        categoryId: data.categoryId,
-        colors: data.colors, // Client sends stringified JSON or plain string
-        sizes: data.sizes, // Client sends stringified JSON or plain string
+        colors: Array.isArray(data.colors)
+          ? data.colors.join(", ")
+          : data.colors,
+        sizes: Array.isArray(data.sizes) ? data.sizes.join(", ") : data.sizes,
         featured: data.featured || false,
       },
     });

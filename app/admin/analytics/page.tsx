@@ -9,6 +9,7 @@ import {
   SimpleGrid,
   Badge,
   Box,
+  Skeleton,
 } from "@mantine/core";
 import { useEffect, useState } from "react";
 import { safeLocalStorage } from "@/lib/localStorage";
@@ -36,9 +37,19 @@ interface MonthlyRevenue {
   revenue: number;
 }
 
-interface CustomerMetrics {
-  totalCustomers: number;
-  newCustomersThisMonth: number;
+interface TopSellingProduct {
+  productId: string;
+  name: string;
+  price: number;
+  quantity: number;
+  revenue: number;
+}
+
+interface LowStockProduct {
+  id: string;
+  name: string;
+  stock: number;
+  price: number;
 }
 
 export default function AdminAnalyticsPage() {
@@ -47,10 +58,8 @@ export default function AdminAnalyticsPage() {
     orderStatusDistribution: [] as OrderStatus[],
     fabricSales: [] as FabricSale[],
     monthlyRevenue: [] as MonthlyRevenue[],
-    customerMetrics: {
-      totalCustomers: 0,
-      newCustomersThisMonth: 0,
-    } as CustomerMetrics,
+    topSellingProducts: [] as TopSellingProduct[],
+    lowStockProducts: [] as LowStockProduct[],
     averageOrderValue: 0,
     totalOrders: 0,
   });
@@ -101,11 +110,20 @@ export default function AdminAnalyticsPage() {
 
   if (loading) {
     return (
-      <Stack gap="xl" align="center" justify="center" h="50vh">
-        <Text c="dimmed" size="sm">
-          LOADING DATA...
-        </Text>
-      </Stack>
+      <Box
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundColor: "white",
+        }}
+      >
+        <Stack gap="xl" align="center">
+          <Skeleton height={40} width={200} />
+          <Skeleton height={20} width={150} />
+        </Stack>
+      </Box>
     );
   }
 
@@ -130,12 +148,12 @@ export default function AdminAnalyticsPage() {
           value={`Rs ${analyticsData.averageOrderValue.toFixed(0)}`}
         />
         <MetricCard
-          label="Total Customers"
-          value={analyticsData.customerMetrics.totalCustomers.toString()}
+          label="Low Stock Items"
+          value={analyticsData.lowStockProducts.length.toString()}
         />
         <MetricCard
-          label="New Customers (Mo)"
-          value={analyticsData.customerMetrics.newCustomersThisMonth.toString()}
+          label="Top Products"
+          value={analyticsData.topSellingProducts.length.toString()}
         />
       </SimpleGrid>
 
@@ -196,30 +214,67 @@ export default function AdminAnalyticsPage() {
         </SectionCard>
       </SimpleGrid>
 
-      <SectionCard title="Revenue Trend (Last 6 Months)">
-        <Stack gap="sm">
-          {analyticsData.monthlyRevenue.map((month) => (
-            <Group
-              key={month.month}
-              justify="space-between"
-              py={12}
-              style={{ borderBottom: "1px solid #f8f9fa" }}
-            >
-              <Text size="sm" fw={500}>
-                {month.month}
-              </Text>
-              <Group gap={40}>
-                <Text size="sm" c="dimmed">
-                  {month.orders} orders
-                </Text>
-                <Text size="sm" fw={600} w={100} ta="right">
-                  Rs {Number(month.revenue).toLocaleString()}
-                </Text>
+      <SimpleGrid cols={{ base: 1, lg: 2 }} spacing={30}>
+        <SectionCard title="Top Selling Products">
+          <Stack gap="sm">
+            {analyticsData.topSellingProducts.map((product, index) => (
+              <Group
+                key={product.productId}
+                justify="space-between"
+                py={8}
+                style={{ borderBottom: "1px solid #f8f9fa" }}
+              >
+                <Group gap="md">
+                  <Text size="xs" w={10} c="dimmed">
+                    {index + 1}
+                  </Text>
+                  <Text size="sm" fw={500}>
+                    {product.name}
+                  </Text>
+                </Group>
+                <Group gap={40}>
+                  <Text size="sm" c="dimmed">
+                    {product.quantity} sold
+                  </Text>
+                  <Text size="sm" fw={600} w={100} ta="right">
+                    Rs {product.revenue.toLocaleString()}
+                  </Text>
+                </Group>
               </Group>
-            </Group>
-          ))}
-        </Stack>
-      </SectionCard>
+            ))}
+          </Stack>
+        </SectionCard>
+
+        <SectionCard title="Low Stock Alert">
+          <Stack gap="sm">
+            {analyticsData.lowStockProducts.map((product, index) => (
+              <Group
+                key={product.id}
+                justify="space-between"
+                py={8}
+                style={{ borderBottom: "1px solid #f8f9fa" }}
+              >
+                <Group gap="md">
+                  <Text size="xs" w={10} c="dimmed">
+                    {index + 1}
+                  </Text>
+                  <Text size="sm" fw={500}>
+                    {product.name}
+                  </Text>
+                </Group>
+                <Group gap={40}>
+                  <Text size="sm" c="dimmed">
+                    Stock: {product.stock}
+                  </Text>
+                  <Text size="sm" fw={600} w={100} ta="right">
+                    Rs {Number(product.price).toLocaleString()}
+                  </Text>
+                </Group>
+              </Group>
+            ))}
+          </Stack>
+        </SectionCard>
+      </SimpleGrid>
     </Stack>
   );
 }

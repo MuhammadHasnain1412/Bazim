@@ -1,4 +1,3 @@
-export * from "./CategoryShowcase";
 export * from "./FeaturedProductsSection";
 export * from "./NewsletterSection";
 export * from "./ProductCard";

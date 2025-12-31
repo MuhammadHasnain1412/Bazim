@@ -32,6 +32,7 @@ import { ProductCard } from "./ProductCard";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
 import { notifications } from "@mantine/notifications";
+import { DEFAULT_PRODUCT_IMAGE } from "@/lib/constants";
 
 interface ProductDetailProps {
   product: {
@@ -88,6 +89,28 @@ export function ProductDetail({ product }: ProductDetailProps) {
   const [quantity, setQuantity] = useState(1);
   const [relatedProducts, setRelatedProducts] = useState<any[]>([]);
 
+  const { addToCart } = useCart();
+
+  const handleAddToCart = async () => {
+    if (product.colors && product.colors.length > 0 && !selectedColor) {
+      notifications.show({
+        title: "Select Color",
+        message: "Please select a color before adding to cart",
+        color: "yellow",
+      });
+      return;
+    }
+
+    await addToCart({
+      productId: product.id,
+      name: product.name,
+      price: product.price,
+      quantity: quantity,
+      image: product.image,
+      color: selectedColor,
+    });
+  };
+
   // Review Form state
   const [submittingReview, setSubmittingReview] = useState(false);
   const [newReview, setNewReview] = useState({
@@ -122,7 +145,6 @@ export function ProductDetail({ product }: ProductDetailProps) {
           color: "green",
         });
         setNewReview({ rating: 5, comment: "", userName: "" });
-        // Refresh page or update local state would be better, but for now:
         window.location.reload();
       } else {
         throw new Error("Failed to submit review");
@@ -157,7 +179,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
                 id: p.id,
                 name: p.name,
                 price: p.price,
-                image: images[0] || "/images/testimg.jpeg",
+                image: images[0] || DEFAULT_PRODUCT_IMAGE,
                 fabricType: p.fabricType || "Premium Fabric",
                 inStock: p.stock > 0,
                 colors: colors,
@@ -248,7 +270,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
                       backgroundColor: color.toLowerCase(),
                       border:
                         selectedColor === color
-                          ? "2px solid #000"
+                          ? "2px solid #132d46"
                           : "1px solid #ddd",
                       cursor: "pointer",
                     }}
@@ -317,7 +339,9 @@ export function ProductDetail({ product }: ProductDetailProps) {
                 leftSection={<IconShoppingCart size={18} />}
                 size="lg"
                 style={{ flex: 1 }}
+                color="bazim-navy"
                 disabled={!product.inStock}
+                onClick={handleAddToCart}
               >
                 Add to Cart
               </Button>
@@ -452,7 +476,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
                       />
                       <Button
                         type="submit"
-                        color="dark"
+                        color="bazim-navy"
                         fullWidth
                         loading={submittingReview}
                         tt="uppercase"

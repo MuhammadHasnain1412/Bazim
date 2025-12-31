@@ -55,3 +55,17 @@ body {
     transform: translateY(0);
   }
 }
+
+/* Hide default loading indicators */
+.loading-spinner,
+.spinner,
+[class*="loading"],
+[class*="spinner"] {
+  display: none !important;
+}
+
+/* Hide Next.js default loading */
+#__next-build-watcher-indicator,
+#__next-dev-tools {
+  display: none !important;
+}

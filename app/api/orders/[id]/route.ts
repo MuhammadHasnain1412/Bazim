@@ -47,7 +47,10 @@ export async function GET(
 
     return NextResponse.json({ order });
   } catch (error) {
-    return NextResponse.json({ error: "Failed to fetch order" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch order" },
+      { status: 500 }
+    );
   }
 }
 
@@ -72,9 +75,9 @@ export async function PUT(
     const { id } = await params;
     const { status } = await request.json();
 
-    const order = await prisma.order.update({
+    // Get current order with items to check status transition
+    const currentOrder = await prisma.order.findUnique({
       where: { id },
-      data: { status },
       include: {
         items: {
           include: {
@@ -84,8 +87,67 @@ export async function PUT(
       },
     });
 
-    return NextResponse.json({ order });
+    if (!currentOrder) {
+      return NextResponse.json({ error: "Order not found" }, { status: 404 });
+    }
+
+    // Check if status is changing to DELIVERED from a non-DELIVERED status
+    const isMarkingDelivered =
+      status === "DELIVERED" && currentOrder.status !== "DELIVERED";
+
+    if (isMarkingDelivered) {
+      // Validate stock availability before proceeding
+      for (const item of currentOrder.items) {
+        if (item.product.stock < item.quantity) {
+          return NextResponse.json(
+            {
+              error: "Insufficient stock",
+              details: `Product "${item.product.name}" has only ${item.product.stock} units available, but ${item.quantity} units are required`,
+            },
+            { status: 400 }
+          );
+        }
+      }
+    }
+
+    // Use transaction for atomic operations
+    const updatedOrder = await prisma.$transaction(async (tx) => {
+      // Update order status
+      const order = await tx.order.update({
+        where: { id },
+        data: { status },
+        include: {
+          items: {
+            include: {
+              product: true,
+            },
+          },
+        },
+      });
+
+      // If marking as delivered, deduct stock
+      if (isMarkingDelivered) {
+        for (const item of order.items) {
+          await tx.product.update({
+            where: { id: item.productId },
+            data: {
+              stock: {
+                decrement: item.quantity,
+              },
+            },
+          });
+        }
+      }
+
+      return order;
+    });
+
+    return NextResponse.json({ order: updatedOrder });
   } catch (error) {
-    return NextResponse.json({ error: "Failed to update order" }, { status: 500 });
+    console.error("Order update failed:", error);
+    return NextResponse.json(
+      { error: "Failed to update order" },
+      { status: 500 }
+    );
   }
 }

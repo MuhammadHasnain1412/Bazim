@@ -19,6 +19,7 @@ import { useRouter } from "next/navigation";
 import { ImageUploader } from "@/components/admin/ImageUploader";
 import { safeLocalStorage } from "@/lib/localStorage";
 import { notifications } from "@mantine/notifications";
+import { FABRIC_TYPES } from "@/lib/constants";
 import { useState, useEffect } from "react";
 
 interface CreateProductForm {
@@ -27,7 +28,6 @@ interface CreateProductForm {
   description: string;
   price: number;
   stock: number;
-  categoryId: string;
   fabricType: string;
   fabricGSM: string;
   designType: string;
@@ -39,10 +39,6 @@ interface CreateProductForm {
 export default function NewProductPage() {
   const router = useRouter();
 
-  const [categories, setCategories] = useState<
-    { value: string; label: string }[]
-  >([]);
-
   const form = useForm<CreateProductForm>({
     initialValues: {
       name: "",
@@ -50,7 +46,6 @@ export default function NewProductPage() {
       description: "",
       price: 0,
       stock: 0,
-      categoryId: "",
       fabricType: "",
       fabricGSM: "",
       designType: "",
@@ -81,10 +76,8 @@ export default function NewProductPage() {
         },
         body: JSON.stringify({
           ...values,
-          colors: JSON.stringify(
-            values.colors.split(",").map((color) => color.trim())
-          ),
-          sizes: JSON.stringify([]), // Send empty array for sizes
+          colors: values.colors.split(",").map((color) => color.trim()),
+          sizes: [], // Send empty array for sizes
         }),
       });
 
@@ -187,22 +180,8 @@ export default function NewProductPage() {
                 <Select
                   label="Fabric Type"
                   placeholder="Select fabric type"
-                  data={[
-                    { value: "cotton", label: "Cotton" },
-                    { value: "lawn", label: "Lawn" },
-                    { value: "cambric", label: "Cambric" },
-                    { value: "silk", label: "Silk" },
-                    { value: "raw-silk", label: "Raw Silk" },
-                    { value: "tussar-silk", label: "Tussar Silk" },
-                    { value: "dupioni-silk", label: "Dupioni Silk" },
-                    { value: "linen", label: "Linen" },
-                    { value: "chiffon", label: "Chiffon" },
-                    { value: "georgette", label: "Georgette" },
-                    { value: "wool", label: "Wool" },
-                    { value: "velvet", label: "Velvet" },
-                    { value: "khaddar", label: "Khaddar" },
-                    { value: "organza", label: "Organza" },
-                  ]}
+                  data={FABRIC_TYPES}
+                  searchable
                   {...form.getInputProps("fabricType")}
                   required
                 />

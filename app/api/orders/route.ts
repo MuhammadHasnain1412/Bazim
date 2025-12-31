@@ -67,20 +67,23 @@ export async function POST(request: NextRequest) {
           { status: 404 }
         );
       }
+
       const price = Number(product.price);
       total += price * item.quantity;
       orderItemsData.push({
         productId: item.productId,
         quantity: item.quantity,
-        price: price,
+        price: price.toString(),
         color: item.color,
       });
     }
 
     const order = await prisma.order.create({
       data: {
-        userId: tokenData?.userId || undefined,
-        total,
+        user: tokenData?.userId
+          ? { connect: { id: tokenData.userId } }
+          : undefined,
+        total: total.toString(),
         shippingName,
         shippingPhone,
         shippingAddress,
@@ -108,8 +111,12 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ order }, { status: 201 });
   } catch (error) {
     console.error("Order creation failed:", error);
+    console.error("Error details:", JSON.stringify(error, null, 2));
     return NextResponse.json(
-      { error: "Failed to create order" },
+      {
+        error: "Failed to create order",
+        details: error instanceof Error ? error.message : String(error),
+      },
       { status: 500 }
     );
   }

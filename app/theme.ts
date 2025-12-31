@@ -6,16 +6,16 @@ export const theme = createTheme({
   primaryColor: "bazim-navy",
   colors: {
     "bazim-navy": [
-      "#eef1f6",
-      "#d8e0ea",
-      "#afbfd2",
-      "#829db9",
-      "#5d80a3",
-      "#466a91",
-      "#395f89",
-      "#2c5078",
-      "#24476c",
-      "#0d2137", // Base navy from logo at index 9
+      "#ecf2f8",
+      "#dce4ed",
+      "#b8c9db",
+      "#94adc9",
+      "#7091b7",
+      "#4c75a5",
+      "#132d46", // Base color at index 6
+      "#10263b",
+      "#0d1f30",
+      "#0a1825",
     ],
   },
 

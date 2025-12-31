@@ -14,6 +14,8 @@ import {
   Image,
   Box,
   rem,
+  Modal,
+  Skeleton,
 } from "@mantine/core";
 import {
   IconPlus,
@@ -24,13 +26,24 @@ import {
 } from "@tabler/icons-react";
 import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { safeLocalStorage } from "@/lib/localStorage";
 import { notifications } from "@mantine/notifications";
 
+import { useDisclosure } from "@mantine/hooks";
+
 export default function AdminProductsPage() {
+  const router = useRouter();
   const [products, setProducts] = useState<any[]>([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
+
+  // Modal state
+  const [opened, { open, close }] = useDisclosure(false);
+  const [productToDelete, setProductToDelete] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
 
   useEffect(() => {
     fetchProducts();
@@ -55,42 +68,61 @@ export default function AdminProductsPage() {
     );
   }, [products, search]);
 
-  const handleDelete = async (id: string, name: string) => {
-    if (confirm(`Are you sure you want to delete "${name}"?`)) {
-      try {
-        const token = safeLocalStorage.getItem("adminToken");
+  const openDeleteModal = (id: string, name: string) => {
+    setProductToDelete({ id, name });
+    open();
+  };
 
-        const response = await fetch(`/api/products/${id}`, {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+  const confirmDeleteWithModal = async () => {
+    if (!productToDelete) return;
+
+    const { id, name } = productToDelete;
+    close(); // Close modal immediately
+
+    try {
+      const token = safeLocalStorage.getItem("adminToken");
+
+      const response = await fetch(`/api/products/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        notifications.show({
+          title: "Deleted",
+          message: `${name} has been removed from inventory`,
+          color: "dark",
+          radius: "xs",
         });
-
-        if (response.ok) {
-          notifications.show({
-            title: "Deleted",
-            message: `${name} has been removed from inventory`,
-            color: "dark",
-            radius: "xs",
-          });
-          fetchProducts();
-        } else {
-          const errorData = await response.json();
-          notifications.show({
-            title: "Error",
-            message: `Delete failed: ${errorData.error || "Unknown error"}`,
-            color: "red",
-          });
+        fetchProducts();
+      } else {
+        const text = await response.text();
+        let errorMessage = "Unknown error";
+        try {
+          const errorData = JSON.parse(text);
+          errorMessage = errorData.error || errorMessage;
+        } catch (e) {
+          console.error("Failed to parse error response:", text);
+          errorMessage = text || response.statusText;
         }
-      } catch (error) {
-        console.error("Error deleting product:", error);
+
         notifications.show({
           title: "Error",
-          message: "Error deleting product",
+          message: `Delete failed: ${errorMessage}`,
           color: "red",
         });
       }
+    } catch (error) {
+      console.error("Error deleting product:", error);
+      notifications.show({
+        title: "Error",
+        message: "Error deleting product",
+        color: "red",
+      });
+    } finally {
+      setProductToDelete(null);
     }
   };
 
@@ -240,11 +272,12 @@ export default function AdminProductsPage() {
                     <Table.Td style={{ textAlign: "right" }}>
                       <Group gap="xs" justify="flex-end">
                         <ActionIcon
-                          component={Link}
-                          href={`/admin/products/${product.id}/edit`}
                           variant="subtle"
                           color="dark"
                           size="md"
+                          onClick={() =>
+                            router.push(`/admin/products/${product.id}/edit`)
+                          }
                         >
                           <IconPencil size={18} stroke={1.5} />
                         </ActionIcon>
@@ -252,7 +285,11 @@ export default function AdminProductsPage() {
                           variant="subtle"
                           color="red.8"
                           size="md"
-                          onClick={() => handleDelete(product.id, product.name)}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            openDeleteModal(product.id, product.name);
+                          }}
                         >
                           <IconTrash size={18} stroke={1.5} />
                         </ActionIcon>
@@ -274,19 +311,45 @@ export default function AdminProductsPage() {
           )}
 
           {loading && (
-            <Text
-              ta="center"
-              py={60}
-              c="dimmed"
-              size="sm"
-              tt="uppercase"
-              lts={1}
-            >
-              Loading Inventory...
-            </Text>
+            <Stack gap="xs">
+              {[...Array(5)].map((_, i) => (
+                <Group
+                  key={i}
+                  justify="space-between"
+                  p="md"
+                  style={{ borderBottom: "1px solid #f1f3f5" }}
+                >
+                  <Group>
+                    <Skeleton height={48} width={48} radius={8} />
+                    <Skeleton height={16} width={150} radius="xl" />
+                  </Group>
+                  <Skeleton height={20} width={100} radius="xl" />
+                  <Skeleton height={20} width={80} radius="xl" />
+                  <Skeleton height={20} width={60} radius="xl" />
+                  <Skeleton height={20} width={80} radius="xl" />
+                  <Skeleton height={28} width={60} radius="xl" />
+                </Group>
+              ))}
+            </Stack>
           )}
         </Stack>
       </Paper>
+
+      <Modal opened={opened} onClose={close} title="Confirm Deletion" centered>
+        <Text size="sm" mb="lg">
+          Are you sure you want to delete{" "}
+          <strong>{productToDelete?.name}</strong>? This action cannot be
+          undone.
+        </Text>
+        <Group justify="flex-end">
+          <Button variant="default" onClick={close}>
+            Cancel
+          </Button>
+          <Button color="red" onClick={confirmDeleteWithModal}>
+            Delete
+          </Button>
+        </Group>
+      </Modal>
     </Stack>
   );
 }

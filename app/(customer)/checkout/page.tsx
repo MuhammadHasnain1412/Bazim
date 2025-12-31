@@ -11,18 +11,24 @@ import {
   Group,
   Text,
   Divider,
+  Box,
+  Modal,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
+import { useDisclosure } from "@mantine/hooks";
 import { useCart } from "@/context/CartContext";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { notifications } from "@mantine/notifications";
 import { safeLocalStorage } from "@/lib/localStorage";
+import { IconCheck, IconX } from "@tabler/icons-react";
 
 export default function CheckoutPage() {
   const { items, total, clearCart } = useCart();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [opened, { open, close }] = useDisclosure(false);
+  const [orderId, setOrderId] = useState("");
 
   const form = useForm({
     initialValues: {
@@ -65,124 +71,393 @@ export default function CheckoutPage() {
       });
 
       if (response.ok) {
+        const data = await response.json();
+        setOrderId(data.order.id);
         clearCart();
-        notifications.show({
-          title: "Order placed successfully!",
-          message: "Thank you for your purchase. We will contact you soon.",
-          color: "green",
-        });
-        router.push("/");
+        open();
       } else {
         const errorData = await response.json();
         throw new Error(errorData.error || "Order failed");
       }
     } catch (error: any) {
       notifications.show({
-        title: "Order failed",
-        message: error.message || "Please try again",
-        color: "red",
+        title: "Order Failed",
+        message: error.message || "Please try again or contact support",
+        color: "#8b4513",
+        icon: <IconX size={18} />,
+        radius: "xs",
+        autoClose: 6000,
+        styles: {
+          root: {
+            backgroundColor: "#fff5f5",
+            borderLeft: "4px solid #8b4513",
+          },
+          title: {
+            fontFamily: "Georgia, serif",
+            fontWeight: 600,
+          },
+          description: {
+            fontFamily: "Georgia, serif",
+          },
+        },
       });
     } finally {
       setLoading(false);
     }
   };
 
+  const handleContinueShopping = () => {
+    close();
+    router.push("/");
+  };
+
   return (
-    <Container size="xl" py="xl">
-      <Title order={1} mb="xl">
-        Checkout
-      </Title>
+    <Box bg="#fafaf8" style={{ minHeight: "100vh" }} py={60}>
+      <Container size="xl">
+        <Title
+          order={1}
+          mb="xl"
+          c="#2c2c2c"
+          style={{ fontFamily: "Georgia, serif" }}
+          fw={400}
+          lts={2}
+          tt="uppercase"
+        >
+          Checkout
+        </Title>
 
-      <Group align="flex-start" gap="xl">
-        <Card padding="lg" withBorder style={{ flex: 1 }}>
-          <form onSubmit={form.onSubmit(handleSubmit)}>
-            <Stack gap="md">
-              <Title order={3}>Shipping Information</Title>
+        <Group align="flex-start" gap="xl">
+          <Card
+            padding="xl"
+            radius="0"
+            style={{
+              flex: 1,
+              border: "1px solid #e8e6e1",
+              backgroundColor: "white",
+            }}
+          >
+            <form onSubmit={form.onSubmit(handleSubmit)}>
+              <Stack gap="lg">
+                <Title
+                  order={3}
+                  c="#2c2c2c"
+                  style={{ fontFamily: "Georgia, serif" }}
+                  fw={600}
+                  size={18}
+                  tt="uppercase"
+                  lts={1}
+                >
+                  Shipping Information
+                </Title>
 
-              <TextInput
-                label="Full Name"
-                placeholder="John Doe"
-                required
-                {...form.getInputProps("name")}
-              />
-
-              <TextInput
-                label="Email"
-                placeholder="john@example.com"
-                required
-                {...form.getInputProps("email")}
-              />
-
-              <TextInput
-                label="Phone"
-                placeholder="+1 234 567 8900"
-                required
-                {...form.getInputProps("phone")}
-              />
-
-              <Textarea
-                label="Address"
-                placeholder="123 Main St"
-                required
-                minRows={3}
-                {...form.getInputProps("address")}
-              />
-
-              <Group grow>
                 <TextInput
-                  label="City"
-                  placeholder="New York"
+                  label="Full Name"
+                  placeholder="John Doe"
                   required
-                  {...form.getInputProps("city")}
+                  {...form.getInputProps("name")}
+                  styles={{
+                    label: {
+                      fontFamily: "Georgia, serif",
+                      color: "#2c2c2c",
+                      fontWeight: 500,
+                      marginBottom: 8,
+                    },
+                    input: {
+                      fontFamily: "Georgia, serif",
+                      borderRadius: 0,
+                      borderColor: "#e8e6e1",
+                    },
+                  }}
                 />
 
                 <TextInput
-                  label="Postal Code"
-                  placeholder="10001"
+                  label="Email"
+                  placeholder="john@example.com"
                   required
-                  {...form.getInputProps("postalCode")}
+                  {...form.getInputProps("email")}
+                  styles={{
+                    label: {
+                      fontFamily: "Georgia, serif",
+                      color: "#2c2c2c",
+                      fontWeight: 500,
+                      marginBottom: 8,
+                    },
+                    input: {
+                      fontFamily: "Georgia, serif",
+                      borderRadius: 0,
+                      borderColor: "#e8e6e1",
+                    },
+                  }}
                 />
-              </Group>
 
-              <Button type="submit" size="lg" loading={loading} mt="md">
-                Place Order
-              </Button>
-            </Stack>
-          </form>
-        </Card>
+                <TextInput
+                  label="Phone"
+                  placeholder="+92 300 1234567"
+                  required
+                  {...form.getInputProps("phone")}
+                  styles={{
+                    label: {
+                      fontFamily: "Georgia, serif",
+                      color: "#2c2c2c",
+                      fontWeight: 500,
+                      marginBottom: 8,
+                    },
+                    input: {
+                      fontFamily: "Georgia, serif",
+                      borderRadius: 0,
+                      borderColor: "#e8e6e1",
+                    },
+                  }}
+                />
 
-        <Card padding="lg" withBorder style={{ minWidth: 300 }}>
-          <Stack gap="md">
-            <Title order={3}>Order Summary</Title>
-            <Divider />
+                <Textarea
+                  label="Address"
+                  placeholder="123 Main Street"
+                  required
+                  minRows={3}
+                  {...form.getInputProps("address")}
+                  styles={{
+                    label: {
+                      fontFamily: "Georgia, serif",
+                      color: "#2c2c2c",
+                      fontWeight: 500,
+                      marginBottom: 8,
+                    },
+                    input: {
+                      fontFamily: "Georgia, serif",
+                      borderRadius: 0,
+                      borderColor: "#e8e6e1",
+                    },
+                  }}
+                />
 
-            {items.map((item) => (
-              <Group key={item.id} justify="space-between">
-                <Stack gap={0}>
-                  <Text size="sm">{item.name}</Text>
-                  <Text size="xs" c="gray.6">
-                    Qty: {item.quantity}
+                <Group grow>
+                  <TextInput
+                    label="City"
+                    placeholder="Karachi"
+                    required
+                    {...form.getInputProps("city")}
+                    styles={{
+                      label: {
+                        fontFamily: "Georgia, serif",
+                        color: "#2c2c2c",
+                        fontWeight: 500,
+                        marginBottom: 8,
+                      },
+                      input: {
+                        fontFamily: "Georgia, serif",
+                        borderRadius: 0,
+                        borderColor: "#e8e6e1",
+                      },
+                    }}
+                  />
+
+                  <TextInput
+                    label="Postal Code"
+                    placeholder="75500"
+                    required
+                    {...form.getInputProps("postalCode")}
+                    styles={{
+                      label: {
+                        fontFamily: "Georgia, serif",
+                        color: "#2c2c2c",
+                        fontWeight: 500,
+                        marginBottom: 8,
+                      },
+                      input: {
+                        fontFamily: "Georgia, serif",
+                        borderRadius: 0,
+                        borderColor: "#e8e6e1",
+                      },
+                    }}
+                  />
+                </Group>
+
+                <Button
+                  type="submit"
+                  size="lg"
+                  loading={loading}
+                  mt="md"
+                  fullWidth
+                  radius="0"
+                  color="#2c2c2c"
+                  styles={{
+                    root: {
+                      fontFamily: "Georgia, serif",
+                      textTransform: "uppercase",
+                      letterSpacing: "2px",
+                      fontSize: "14px",
+                      fontWeight: 600,
+                      backgroundColor: "#2c2c2c",
+                      "&:hover": {
+                        backgroundColor: "#1a1a1a",
+                      },
+                    },
+                  }}
+                >
+                  Place Order
+                </Button>
+              </Stack>
+            </form>
+          </Card>
+
+          <Card
+            padding="xl"
+            radius="0"
+            style={{
+              minWidth: 350,
+              border: "1px solid #e8e6e1",
+              backgroundColor: "white",
+            }}
+          >
+            <Stack gap="lg">
+              <Title
+                order={3}
+                c="#2c2c2c"
+                style={{ fontFamily: "Georgia, serif" }}
+                fw={600}
+                size={18}
+                tt="uppercase"
+                lts={1}
+              >
+                Order Summary
+              </Title>
+              <Divider color="#e8e6e1" />
+
+              {items.map((item) => (
+                <Group key={item.id} justify="space-between" align="flex-start">
+                  <Stack gap={4} style={{ flex: 1 }}>
+                    <Text
+                      size="sm"
+                      fw={500}
+                      c="#2c2c2c"
+                      style={{ fontFamily: "Georgia, serif" }}
+                    >
+                      {item.name}
+                    </Text>
+                    <Text
+                      size="xs"
+                      c="dimmed"
+                      style={{ fontFamily: "Georgia, serif" }}
+                    >
+                      Qty: {item.quantity}
+                      {item.color && ` • Color: ${item.color}`}
+                    </Text>
+                  </Stack>
+                  <Text
+                    fw={600}
+                    c="#2c2c2c"
+                    style={{ fontFamily: "Georgia, serif" }}
+                  >
+                    Rs {Number(item.price * item.quantity).toLocaleString()}
                   </Text>
-                </Stack>
-                <Text fw={600}>
-                  Rs {Number(item.price * item.quantity).toFixed(2)}
+                </Group>
+              ))}
+
+              <Divider color="#e8e6e1" />
+
+              <Group justify="space-between">
+                <Text
+                  size="lg"
+                  fw={600}
+                  c="#2c2c2c"
+                  tt="uppercase"
+                  lts={1}
+                  style={{ fontFamily: "Georgia, serif" }}
+                >
+                  Total
+                </Text>
+                <Text
+                  size="xl"
+                  fw={700}
+                  c="#2c2c2c"
+                  style={{ fontFamily: "Georgia, serif" }}
+                >
+                  Rs {Number(total).toLocaleString()}
                 </Text>
               </Group>
-            ))}
+            </Stack>
+          </Card>
+        </Group>
+      </Container>
 
-            <Divider />
+      <Modal
+        opened={opened}
+        onClose={handleContinueShopping}
+        title={
+          <Text size="xl" fw={700} style={{ fontFamily: "Georgia, serif" }}>
+            ORDER CONFIRMED
+          </Text>
+        }
+        centered
+        size="lg"
+        styles={{
+          header: {
+            borderBottom: "1px solid #f1f3f5",
+          },
+          body: {
+            paddingTop: "20px",
+          },
+        }}
+      >
+        <Stack gap="md" align="center" ta="center">
+          <Box c="green.6">
+            <IconCheck size={64} stroke={1.5} />
+          </Box>
 
-            <Group justify="space-between">
-              <Text size="lg" fw={600}>
-                Total
+          <Title order={3} style={{ fontFamily: "Georgia, serif" }}>
+            Thank you for your order!
+          </Title>
+
+          <Text c="dimmed">Order ID: #{orderId}</Text>
+
+          <Box
+            bg="gray.0"
+            p="md"
+            style={{ borderRadius: "8px", width: "100%" }}
+            ta="left"
+          >
+            <Stack gap="xs">
+              <Text fw={600} size="sm">
+                Delivery Instructions:
               </Text>
-              <Text size="xl" fw={700}>
-                Rs {Number(total).toFixed(2)}
+              <Text size="sm" c="dimmed">
+                Your order has been placed successfully. You will receive a
+                confirmation call shortly to verify your details. Shipping
+                usually takes 3-5 business days.
               </Text>
-            </Group>
-          </Stack>
-        </Card>
-      </Group>
-    </Container>
+
+              <Divider my="xs" />
+
+              <Text fw={600} size="sm">
+                For Queries:
+              </Text>
+              <Text size="sm" c="dimmed">
+                Contact no: <strong>+92 300 1234567</strong>
+                <br />
+                Email: <strong>info@bazim.com</strong>
+              </Text>
+            </Stack>
+          </Box>
+
+          <Button
+            color="dark"
+            size="md"
+            fullWidth
+            onClick={handleContinueShopping}
+            mt="md"
+            styles={{
+              root: {
+                fontFamily: "Georgia, serif",
+                textTransform: "uppercase",
+                letterSpacing: "1px",
+              },
+            }}
+          >
+            Continue Shopping
+          </Button>
+        </Stack>
+      </Modal>
+    </Box>
   );
 }

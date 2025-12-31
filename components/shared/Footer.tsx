@@ -16,6 +16,7 @@ import {
   IconBrandTwitter,
 } from "@tabler/icons-react";
 import Link from "next/link";
+import { COMPANY_INFO } from "@/lib/constants";
 
 export function Footer() {
   return (
@@ -30,20 +31,19 @@ export function Footer() {
           {/* Brand */}
           <Stack gap="sm">
             <Title order={4} size={18} fw={700} lts={1}>
-              BAZIM
+              {COMPANY_INFO.name.toUpperCase()}
             </Title>
             <Text size="sm" c="dimmed" lh={1.6}>
-              Premium menswear for the discerning gentleman. Quality, style, and
-              comfort in every stitch.
+              {COMPANY_INFO.description}
             </Text>
             <Group gap="xs">
-              <ActionIcon variant="subtle" color="dark" size="md">
+              <ActionIcon variant="subtle" color="bazim-navy" size="md">
                 <IconBrandInstagram size={18} stroke={1.5} />
               </ActionIcon>
-              <ActionIcon variant="subtle" color="dark" size="md">
+              <ActionIcon variant="subtle" color="bazim-navy" size="md">
                 <IconBrandFacebook size={18} stroke={1.5} />
               </ActionIcon>
-              <ActionIcon variant="subtle" color="dark" size="md">
+              <ActionIcon variant="subtle" color="bazim-navy" size="md">
                 <IconBrandTwitter size={18} stroke={1.5} />
               </ActionIcon>
             </Group>
@@ -54,10 +54,7 @@ export function Footer() {
             <Text size="sm" fw={600} tt="uppercase" lts={1}>
               Shop
             </Text>
-            <Link
-              href="/products?category=new"
-              style={{ textDecoration: "none" }}
-            >
+            <Link href="/products" style={{ textDecoration: "none" }}>
               <Text
                 size="sm"
                 c="dimmed"
@@ -66,10 +63,7 @@ export function Footer() {
                 New Arrivals
               </Text>
             </Link>
-            <Link
-              href="/products?category=best-sellers"
-              style={{ textDecoration: "none" }}
-            >
+            <Link href="/products" style={{ textDecoration: "none" }}>
               <Text
                 size="sm"
                 c="dimmed"
@@ -135,7 +129,7 @@ export function Footer() {
               <Input placeholder="Your email" radius="xs" style={{ flex: 1 }} />
               <Button
                 variant="outline"
-                color="dark"
+                color="bazim-navy"
                 radius="xs"
                 tt="uppercase"
                 fz="xs"
@@ -153,7 +147,8 @@ export function Footer() {
           style={{ borderTop: "1px solid #f5f5f5" }}
         >
           <Text size="xs" c="dimmed">
-            © 2024 Bazim Clothing. All rights reserved.
+            © {new Date().getFullYear()} {COMPANY_INFO.name}. All rights
+            reserved.
           </Text>
           <Group gap="lg">
             <Text size="xs" c="dimmed" style={{ cursor: "pointer" }}>

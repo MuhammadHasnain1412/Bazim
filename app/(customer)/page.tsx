@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  CategoryShowcase,
   FeaturedProductsSection,
   NewsletterSection,
   ValueProposition,
@@ -111,7 +110,6 @@ export default function HomePage() {
           </Stack>
         </Box>
       </Box>
-      <CategoryShowcase />
       <ValueProposition />
       <FeaturedProductsSection />
       <NewsletterSection />

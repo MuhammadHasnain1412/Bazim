@@ -12,7 +12,6 @@ export async function GET(
     const product = await prisma.product.findUnique({
       where: { id },
       include: {
-        category: true,
         reviews: {
           orderBy: { createdAt: "desc" },
           take: 10,
@@ -73,16 +72,14 @@ export async function PUT(
         description: data.description,
         price: data.price,
         stock: data.stock,
-        categoryId: data.categoryId,
         fabricType: data.fabricType,
         fabricGSM: data.fabricGSM,
         designType: data.designType,
-        colors: JSON.stringify(data.colors),
-        sizes: JSON.stringify(data.sizes),
+        colors: Array.isArray(data.colors)
+          ? data.colors.join(", ")
+          : data.colors,
+        sizes: Array.isArray(data.sizes) ? data.sizes.join(", ") : data.sizes,
         featured: data.featured,
-      },
-      include: {
-        category: true,
       },
     });
 
@@ -119,9 +116,29 @@ export async function DELETE(
     await prisma.product.delete({ where: { id } });
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch (error: any) {
+    console.error("Error deleting product:", error);
+
+    // Handle Prisma specific errors
+    if (error.code === "P2003") {
+      return NextResponse.json(
+        {
+          error:
+            "Cannot delete product because it is part of existing orders or other records.",
+        },
+        { status: 400 }
+      );
+    }
+
+    if (error.code === "P2025") {
+      return NextResponse.json({ error: "Product not found" }, { status: 404 });
+    }
+
     return NextResponse.json(
-      { error: "Failed to delete product" },
+      {
+        error:
+          "Failed to delete product: " + (error.message || "Unknown error"),
+      },
       { status: 500 }
     );
   }

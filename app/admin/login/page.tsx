@@ -14,7 +14,7 @@ import {
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { notifications } from "@mantine/notifications";
 import Link from "next/link";
 import { safeLocalStorage } from "@/lib/localStorage";
@@ -22,6 +22,11 @@ import { safeLocalStorage } from "@/lib/localStorage";
 export default function AdminLoginPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const form = useForm({
     initialValues: {
@@ -71,6 +76,10 @@ export default function AdminLoginPage() {
       setLoading(false);
     }
   };
+
+  if (!mounted) {
+    return null;
+  }
 
   return (
     <Center h="100vh" bg="gray.0">

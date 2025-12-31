@@ -19,12 +19,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <head>
-        <ColorSchemeScript defaultColorScheme="light" />
-      </head>
-      <body className={inter.variable} suppressHydrationWarning>
-        <MantineProvider theme={theme} defaultColorScheme="light">
+    <html lang="en">
+      <head />
+      <body className={inter.variable}>
+        <MantineProvider theme={theme}>
           <Notifications position="top-right" />
           <Providers>{children}</Providers>
         </MantineProvider>

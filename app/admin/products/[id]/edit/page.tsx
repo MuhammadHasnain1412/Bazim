@@ -14,6 +14,7 @@ import {
   GridCol,
   Text,
   LoadingOverlay,
+  Skeleton,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useRouter } from "next/navigation";
@@ -21,6 +22,7 @@ import { ImageUploader } from "@/components/admin/ImageUploader";
 import { useEffect, useState } from "react";
 import { notifications } from "@mantine/notifications";
 import { safeLocalStorage } from "@/lib/localStorage";
+import { FABRIC_TYPES } from "@/lib/constants";
 
 interface EditProductForm {
   name: string;
@@ -28,7 +30,6 @@ interface EditProductForm {
   description: string;
   price: number;
   stock: number;
-  categoryId: string;
   fabricType: string;
   fabricGSM: string;
   designType: string;
@@ -44,17 +45,12 @@ interface Product {
   description: string;
   price: number;
   stock: number;
-  categoryId: string;
   fabricType: string;
   fabricGSM: string;
   designType: string;
   images: string[];
   colors: string;
   featured: boolean;
-  category: {
-    id: string;
-    name: string;
-  };
 }
 
 export default function EditProductPage({
@@ -69,6 +65,7 @@ export default function EditProductPage({
     { value: string; label: string }[]
   >([]);
   const [submitting, setSubmitting] = useState(false);
+  const [fabricOptions, setFabricOptions] = useState(FABRIC_TYPES);
 
   const form = useForm<EditProductForm>({
     initialValues: {
@@ -77,7 +74,6 @@ export default function EditProductPage({
       description: "",
       price: 0,
       stock: 0,
-      categoryId: "",
       fabricType: "",
       fabricGSM: "",
       designType: "",
@@ -104,13 +100,33 @@ export default function EditProductPage({
           const productData = data.product;
 
           setProduct(productData);
+          // Handle Fabric Type normalization
+          const incomingFabric = productData.fabricType || "";
+          const normalizedFabric = incomingFabric.toLowerCase();
+          const existingOption = FABRIC_TYPES.find(
+            (f) => f.value === normalizedFabric
+          );
+
+          let finalFabricValue = "";
+
+          if (existingOption) {
+            finalFabricValue = existingOption.value;
+          } else if (incomingFabric) {
+            // It's a custom/legacy value
+            setFabricOptions((prev) => [
+              ...prev,
+              { value: incomingFabric, label: incomingFabric },
+            ]);
+            finalFabricValue = incomingFabric;
+          }
+
           form.setValues({
             name: productData.name,
             slug: productData.slug,
             description: productData.description,
             price: Number(productData.price),
             stock: productData.stock,
-            categoryId: productData.categoryId,
+            fabricType: finalFabricValue,
             fabricGSM: productData.fabricGSM,
             designType: productData.designType,
             images: productData.images?.map((img: any) => img.id) || [],
@@ -158,8 +174,9 @@ export default function EditProductPage({
         body: JSON.stringify({
           ...values,
           price: Number(values.price),
+          stock: Number(values.stock),
           colors: values.colors.split(",").map((color) => color.trim()),
-          sizes: JSON.stringify([]),
+          sizes: [],
         }),
       });
 
@@ -188,8 +205,36 @@ export default function EditProductPage({
   if (loading) {
     return (
       <Container size="xl" py="xl">
-        <LoadingOverlay visible={loading} />
-        <Text>Loading product...</Text>
+        <Stack gap="lg">
+          <Skeleton height={40} width={250} />
+
+          <Grid>
+            <GridCol span={{ base: 12, md: 6 }}>
+              <Stack gap="md">
+                <Skeleton height={50} radius="sm" />
+                <Skeleton height={50} radius="sm" />
+                <Skeleton height={100} radius="sm" />
+                <Skeleton height={50} radius="sm" />
+                <Skeleton height={50} radius="sm" />
+              </Stack>
+            </GridCol>
+
+            <GridCol span={{ base: 12, md: 6 }}>
+              <Stack gap="md">
+                <Skeleton height={50} radius="sm" />
+                <Skeleton height={50} radius="sm" />
+                <Skeleton height={50} radius="sm" />
+                <Skeleton height={80} radius="sm" />
+                <Skeleton height={80} radius="sm" />
+              </Stack>
+            </GridCol>
+          </Grid>
+
+          <Group mt="lg">
+            <Skeleton height={36} width={150} radius="sm" />
+            <Skeleton height={36} width={100} radius="sm" />
+          </Group>
+        </Stack>
       </Container>
     );
   }
@@ -244,9 +289,11 @@ export default function EditProductPage({
 
             <GridCol span={{ base: 12, md: 6 }}>
               <Stack gap="md">
-                <TextInput
+                <Select
                   label="Fabric Type"
-                  placeholder="Cotton, Silk, etc."
+                  placeholder="Select fabric type"
+                  data={fabricOptions}
+                  searchable
                   {...form.getInputProps("fabricType")}
                   required
                 />

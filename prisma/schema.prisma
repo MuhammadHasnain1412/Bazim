@@ -1,5 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
+  provider   = "prisma-client-js"
+  engineType = "library"
 }
 
 datasource db {
@@ -26,40 +27,29 @@ enum Role {
 }
 
 model Product {
-  id          String    @id @default(cuid())
+  id          String   @id @default(cuid())
   name        String
-  slug        String    @unique
-  description String    @db.Text
-  price       Decimal   @db.Decimal(10, 2)
-  stock       Int       @default(0)
-  category    Category? @relation(fields: [categoryId], references: [id])
-  categoryId  String?
+  slug        String   @unique
+  description String   @db.Text
+  price       Decimal  @db.Decimal(10, 2)
+  stock       Int      @default(0)
   fabricType  String
   fabricGSM   String
   designType  String
   images      Image[]
-  colors      String    @db.Text
-  sizes       String    @db.Text
-  featured    Boolean   @default(false)
-  viewCount   Int       @default(0)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  colors      String   @db.Text
+  sizes       String   @db.Text
+  featured    Boolean  @default(false)
+  viewCount   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   reviews       Review[]
   cartItems     CartItem[]
   wishlistItems WishlistItem[]
   orderItems    OrderItem[]
 
-  @@index([categoryId])
   @@index([featured])
-}
-
-model Category {
-  id        String    @id @default(cuid())
-  name      String    @unique
-  slug      String    @unique
-  products  Product[]
-  createdAt DateTime  @default(now())
 }
 
 model Image {

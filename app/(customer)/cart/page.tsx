@@ -25,8 +25,19 @@ import { useCart } from "@/context/CartContext";
 import Link from "next/link";
 
 export default function CartPage() {
-  const { items, removeFromCart, updateQuantity, total, itemCount, isLoaded } =
-    useCart();
+  const {
+    items,
+    removeFromCart,
+    updateQuantity,
+    total,
+    itemCount,
+    isLoaded,
+    lowStockItems,
+  } = useCart();
+
+  const hasLowStockItems = items.some((item) =>
+    lowStockItems.has(item.productId)
+  );
 
   if (!isLoaded) {
     return null; // Or a LoadingOverlay
@@ -214,6 +225,7 @@ export default function CartPage() {
                           variant="transparent"
                           color="dark"
                           size="sm"
+                          disabled={lowStockItems.has(item.productId)}
                           onClick={() =>
                             updateQuantity(item.id, item.quantity + 1)
                           }
@@ -284,6 +296,7 @@ export default function CartPage() {
                     fw={700}
                     rightSection={<IconArrowRight size={18} />}
                     style={{ height: 60 }}
+                    disabled={hasLowStockItems}
                   >
                     Checkout
                   </Button>

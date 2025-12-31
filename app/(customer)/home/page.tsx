@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  CategoryShowcase,
   FeaturedProductsSection,
   NewsletterSection,
   ValueProposition,
@@ -17,6 +16,8 @@ import {
   Group,
   rem,
 } from "@mantine/core";
+import { HERO_CONTENT } from "@/lib/constants";
+import Link from "next/link";
 
 export default function HomePage() {
   return (
@@ -31,7 +32,7 @@ export default function HomePage() {
         }}
       >
         <Image
-          src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=2070&auto=format&fit=crop"
+          src={HERO_CONTENT.image}
           alt="Luxury Fashion Hero"
           w="100%"
           h="100%"
@@ -70,9 +71,8 @@ export default function HomePage() {
                   lineHeight: 1,
                   animation: "fadeInUp 1s ease-out 0.2s both",
                 }}
-              >
-                The Art of <br /> Unstitched
-              </Title>
+                dangerouslySetInnerHTML={{ __html: HERO_CONTENT.title }}
+              />
             </Stack>
 
             <Text
@@ -84,8 +84,7 @@ export default function HomePage() {
               c="gray.2"
               style={{ animation: "fadeInUp 1s ease-out 0.4s both" }}
             >
-              Experience the finest craftsmanship in men's apparel. Tailored by
-              heritage, worn by you.
+              {HERO_CONTENT.subtitle}
             </Text>
 
             <Group
@@ -93,25 +92,28 @@ export default function HomePage() {
               mt="xl"
               style={{ animation: "fadeInUp 1s ease-out 0.6s both" }}
             >
-              <Button
-                variant="white"
-                color="dark"
-                size="xl"
-                radius="0"
-                px={50}
-                fw={700}
-                tt="uppercase"
-                lts={2}
-                style={{ transition: "all 0.3s ease" }}
-                onClick={() => (window.location.href = "/products")}
+              <Link
+                href={HERO_CONTENT.ctaLink}
+                style={{ textDecoration: "none" }}
               >
-                Shop Collection
-              </Button>
+                <Button
+                  variant="white"
+                  c="bazim-navy"
+                  size="xl"
+                  radius="0"
+                  px={50}
+                  fw={700}
+                  tt="uppercase"
+                  lts={2}
+                  style={{ transition: "all 0.3s ease" }}
+                >
+                  {HERO_CONTENT.ctaText}
+                </Button>
+              </Link>
             </Group>
           </Stack>
         </Box>
       </Box>
-      <CategoryShowcase />
       <ValueProposition />
       <FeaturedProductsSection />
       <NewsletterSection />
