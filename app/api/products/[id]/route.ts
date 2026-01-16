@@ -9,12 +9,25 @@ export async function GET(
   try {
     const { id } = await params;
 
+    const tokenData = getUserFromRequest(request);
+    let isAdmin = false;
+
+    if (tokenData) {
+      const user = await prisma.user.findUnique({
+        where: { id: tokenData.userId },
+      });
+      if (user?.role === "ADMIN") {
+        isAdmin = true;
+      }
+    }
+
     const product = await prisma.product.findUnique({
       where: { id },
       include: {
         reviews: {
+          where: isAdmin ? {} : { isActive: true },
           orderBy: { createdAt: "desc" },
-          take: 10,
+          take: isAdmin ? 100 : 10,
         },
         images: {
           select: {
@@ -73,12 +86,6 @@ export async function PUT(
         price: data.price,
         stock: data.stock,
         fabricType: data.fabricType,
-        fabricGSM: data.fabricGSM,
-        designType: data.designType,
-        colors: Array.isArray(data.colors)
-          ? data.colors.join(", ")
-          : data.colors,
-        sizes: Array.isArray(data.sizes) ? data.sizes.join(", ") : data.sizes,
         featured: data.featured,
       },
     });

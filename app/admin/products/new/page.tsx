@@ -6,7 +6,6 @@ import {
   Stack,
   TextInput,
   NumberInput,
-  Select,
   Button,
   Textarea,
   Group,
@@ -19,8 +18,6 @@ import { useRouter } from "next/navigation";
 import { ImageUploader } from "@/components/admin/ImageUploader";
 import { safeLocalStorage } from "@/lib/localStorage";
 import { notifications } from "@mantine/notifications";
-import { FABRIC_TYPES } from "@/lib/constants";
-import { useState, useEffect } from "react";
 
 interface CreateProductForm {
   name: string;
@@ -29,10 +26,7 @@ interface CreateProductForm {
   price: number;
   stock: number;
   fabricType: string;
-  fabricGSM: string;
-  designType: string;
   images: string[];
-  colors: string;
   featured: boolean;
 }
 
@@ -47,10 +41,7 @@ export default function NewProductPage() {
       price: 0,
       stock: 0,
       fabricType: "",
-      fabricGSM: "",
-      designType: "",
       images: [],
-      colors: "",
       featured: false,
     },
   });
@@ -76,8 +67,6 @@ export default function NewProductPage() {
         },
         body: JSON.stringify({
           ...values,
-          colors: values.colors.split(",").map((color) => color.trim()),
-          sizes: [], // Send empty array for sizes
         }),
       });
 
@@ -142,13 +131,15 @@ export default function NewProductPage() {
                   label="Product Name"
                   placeholder="Enter product name"
                   {...form.getInputProps("name")}
-                  required
-                />
-
-                <TextInput
-                  label="Slug"
-                  placeholder="product-slug"
-                  {...form.getInputProps("slug")}
+                  onChange={(event) => {
+                    const name = event.currentTarget.value;
+                    form.setFieldValue("name", name);
+                    const slug = name
+                      .toLowerCase()
+                      .replace(/[^a-z0-9]+/g, "-")
+                      .replace(/^-+|-+$/g, "");
+                    form.setFieldValue("slug", slug);
+                  }}
                   required
                 />
 
@@ -177,26 +168,10 @@ export default function NewProductPage() {
 
             <GridCol span={{ base: 12, md: 6 }}>
               <Stack gap="md">
-                <Select
+                <TextInput
                   label="Fabric Type"
-                  placeholder="Select fabric type"
-                  data={FABRIC_TYPES}
-                  searchable
+                  placeholder="Enter fabric type"
                   {...form.getInputProps("fabricType")}
-                  required
-                />
-
-                <TextInput
-                  label="Fabric GSM"
-                  placeholder="180 GSM"
-                  {...form.getInputProps("fabricGSM")}
-                  required
-                />
-
-                <TextInput
-                  label="Design Type"
-                  placeholder="Plain, Embroidered, etc."
-                  {...form.getInputProps("designType")}
                   required
                 />
 
@@ -210,13 +185,6 @@ export default function NewProductPage() {
                     maxImages={5}
                   />
                 </div>
-
-                <Textarea
-                  label="Colors (comma separated)"
-                  placeholder="#FFFFFF, #000000, #4169E1"
-                  {...form.getInputProps("colors")}
-                  required
-                />
               </Stack>
             </GridCol>
           </Grid>

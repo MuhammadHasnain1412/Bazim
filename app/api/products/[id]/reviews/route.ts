@@ -8,9 +8,9 @@ export async function POST(
   try {
     const { id: productId } = await params;
     const body = await request.json();
-    const { rating, comment, userName } = body;
+    const { rating, comment, userName, userEmail } = body;
 
-    if (!rating || !comment || !userName) {
+    if (!rating || !comment || !userName || !userEmail) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
@@ -37,7 +37,9 @@ export async function POST(
         rating,
         comment,
         userName,
+        userEmail,
         productId,
+        isActive: false, // Explicitly set to false, although default is false
       },
     });
 

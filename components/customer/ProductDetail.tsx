@@ -30,7 +30,6 @@ import {
 import { useState, useEffect } from "react";
 import { ProductCard } from "./ProductCard";
 import { useCart } from "@/context/CartContext";
-import { useWishlist } from "@/context/WishlistContext";
 import { notifications } from "@mantine/notifications";
 import { DEFAULT_PRODUCT_IMAGE } from "@/lib/constants";
 
@@ -43,7 +42,6 @@ interface ProductDetailProps {
     image: string;
     fabricType: string;
     inStock: boolean;
-    colors: string[];
     badge?: string;
     discount?: number;
     description: string;
@@ -61,70 +59,38 @@ interface ProductDetailProps {
 }
 
 export function ProductDetail({ product }: ProductDetailProps) {
-  const [selectedColor, setSelectedColor] = useState(
-    product?.colors?.[0] || ""
-  );
-  const { toggleWishlist, isInWishlist } = useWishlist();
-  const isWishlisted = isInWishlist(product.id);
-
-  const handleToggleWishlist = () => {
-    toggleWishlist({
-      productId: product.id,
-      name: product.name,
-      price: product.price,
-      image: product.image,
-      fabricType: product.fabricType,
-      inStock: product.inStock,
-      colors: product.colors,
-    });
-    notifications.show({
-      title: isWishlisted ? "Removed from wishlist" : "Added to wishlist",
-      message: `${product.name} has been ${
-        isWishlisted ? "removed from" : "added to"
-      } your wishlist`,
-      color: isWishlisted ? "gray" : "red",
-    });
-  };
-
   const [quantity, setQuantity] = useState(1);
   const [relatedProducts, setRelatedProducts] = useState<any[]>([]);
 
   const { addToCart } = useCart();
 
   const handleAddToCart = async () => {
-    if (product.colors && product.colors.length > 0 && !selectedColor) {
-      notifications.show({
-        title: "Select Color",
-        message: "Please select a color before adding to cart",
-        color: "yellow",
-      });
-      return;
-    }
-
     await addToCart({
       productId: product.id,
       name: product.name,
       price: product.price,
       quantity: quantity,
       image: product.image,
-      color: selectedColor,
     });
   };
 
   // Review Form state
+  // ... (keeping existing review form state and handlers)
+
   const [submittingReview, setSubmittingReview] = useState(false);
   const [newReview, setNewReview] = useState({
     rating: 5,
     comment: "",
     userName: "",
+    userEmail: "",
   });
 
   const handleSubmitReview = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newReview.userName || !newReview.comment) {
+    if (!newReview.userName || !newReview.comment || !newReview.userEmail) {
       notifications.show({
         title: "Missing Fields",
-        message: "Please provide your name and a comment.",
+        message: "Please provide your name, email, and a comment.",
         color: "red",
       });
       return;
@@ -144,7 +110,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
           message: "Your review has been submitted.",
           color: "green",
         });
-        setNewReview({ rating: 5, comment: "", userName: "" });
+        setNewReview({ rating: 5, comment: "", userName: "", userEmail: "" });
         window.location.reload();
       } else {
         throw new Error("Failed to submit review");
@@ -173,7 +139,6 @@ export function ProductDetail({ product }: ProductDetailProps) {
             .slice(0, 2)
             .map((p: any) => {
               const images = JSON.parse(p.images || "[]");
-              const colors = JSON.parse(p.colors || "[]");
 
               return {
                 id: p.id,
@@ -182,7 +147,6 @@ export function ProductDetail({ product }: ProductDetailProps) {
                 image: images[0] || DEFAULT_PRODUCT_IMAGE,
                 fabricType: p.fabricType || "Premium Fabric",
                 inStock: p.stock > 0,
-                colors: colors,
                 badge: p.featured ? "Featured" : undefined,
               };
             });
@@ -256,30 +220,6 @@ export function ProductDetail({ product }: ProductDetailProps) {
 
             <Text c="gray.6">{product.description}</Text>
 
-            {/* Color Selection */}
-            <Stack gap="sm">
-              <Text fw={500}>Colors</Text>
-              <Group gap="xs">
-                {product?.colors?.map((color) => (
-                  <div
-                    key={color}
-                    style={{
-                      width: "24px",
-                      height: "24px",
-                      borderRadius: "50%",
-                      backgroundColor: color.toLowerCase(),
-                      border:
-                        selectedColor === color
-                          ? "2px solid #132d46"
-                          : "1px solid #ddd",
-                      cursor: "pointer",
-                    }}
-                    onClick={() => setSelectedColor(color)}
-                  />
-                ))}
-              </Group>
-            </Stack>
-
             {/* Quantity and Add to Cart */}
             <Group gap="sm" align="center">
               <div
@@ -345,17 +285,6 @@ export function ProductDetail({ product }: ProductDetailProps) {
               >
                 Add to Cart
               </Button>
-              <ActionIcon
-                size="lg"
-                variant={isWishlisted ? "filled" : "outline"}
-                color={isWishlisted ? "red" : "gray"}
-                onClick={handleToggleWishlist}
-              >
-                <IconHeart
-                  size={18}
-                  fill={isWishlisted ? "currentColor" : "none"}
-                />
-              </ActionIcon>
             </Group>
 
             {/* Stock Status */}
@@ -385,11 +314,27 @@ export function ProductDetail({ product }: ProductDetailProps) {
         <Tabs.List>
           <Tabs.Tab value="description">Description</Tabs.Tab>
           <Tabs.Tab value="reviews">Reviews</Tabs.Tab>
-          <Tabs.Tab value="specification">Specification</Tabs.Tab>
         </Tabs.List>
 
         <Tabs.Panel value="description" pt="md">
-          <Text>{product.description}</Text>
+          <Box
+            style={{
+              padding: "20px",
+              backgroundColor: "#f8f9fa",
+              borderRadius: "4px",
+              minHeight: "100px",
+            }}
+          >
+            <Text
+              size="md"
+              c="gray.8"
+              lh={1.6}
+              style={{ whiteSpace: "pre-wrap" }}
+            >
+              {product.description ||
+                "No description available for this product."}
+            </Text>
+          </Box>
         </Tabs.Panel>
 
         <Tabs.Panel value="reviews" pt="xl">
@@ -461,6 +406,19 @@ export function ProductDetail({ product }: ProductDetailProps) {
                           })
                         }
                       />
+                      <TextInput
+                        label="Your Email"
+                        placeholder="e.g. john@example.com"
+                        required
+                        type="email"
+                        value={newReview.userEmail}
+                        onChange={(e) =>
+                          setNewReview({
+                            ...newReview,
+                            userEmail: e.target.value,
+                          })
+                        }
+                      />
                       <Textarea
                         label="Comment"
                         placeholder="What did you like or dislike about this product?"
@@ -489,16 +447,6 @@ export function ProductDetail({ product }: ProductDetailProps) {
               </Box>
             </GridCol>
           </Grid>
-        </Tabs.Panel>
-
-        <Tabs.Panel value="specification" pt="md">
-          <Stack gap="sm">
-            {product?.features?.map((feature, index) => (
-              <Text key={index} size="sm">
-                {feature}
-              </Text>
-            ))}
-          </Stack>
         </Tabs.Panel>
       </Tabs>
 

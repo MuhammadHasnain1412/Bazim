@@ -62,7 +62,6 @@ export default function CheckoutPage() {
             productId: item.productId,
             quantity: item.quantity,
             price: item.price,
-            color: item.color,
           })),
           shippingName: values.name,
           shippingPhone: values.phone,
@@ -341,7 +340,6 @@ export default function CheckoutPage() {
                       style={{ fontFamily: "Georgia, serif" }}
                     >
                       Qty: {item.quantity}
-                      {item.color && ` • Color: ${item.color}`}
                     </Text>
                   </Stack>
                   <Text

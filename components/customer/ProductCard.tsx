@@ -9,16 +9,13 @@ import {
   Text,
   Button,
   Box,
-  ActionIcon,
   Transition,
 } from "@mantine/core";
 import { DEFAULT_PRODUCT_IMAGE } from "@/lib/constants";
-import { IconHeart, IconPlus } from "@tabler/icons-react";
+import { IconPlus } from "@tabler/icons-react";
 import { useState } from "react";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
-import { useWishlist } from "@/context/WishlistContext";
-import { notifications } from "@mantine/notifications";
 
 export interface ProductCardProps {
   id: string;
@@ -41,35 +38,11 @@ export function ProductCard({
   image,
   fabricType,
   inStock,
-  colors = [],
   badge,
   discount,
 }: ProductCardProps) {
   const [isHovered, setIsHovered] = useState(false);
   const { addToCart } = useCart();
-  const { toggleWishlist, isInWishlist } = useWishlist();
-
-  const isWishlisted = isInWishlist(id);
-
-  const handleToggleWishlist = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    toggleWishlist({
-      productId: id,
-      name,
-      price,
-      image,
-      fabricType,
-      inStock,
-      colors,
-    });
-    notifications.show({
-      title: isWishlisted ? "Removed" : "Added",
-      message: `${name} ${isWishlisted ? "removed from" : "added to"} wishlist`,
-      color: isWishlisted ? "gray" : "black",
-      radius: "xs",
-    });
-  };
 
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -80,7 +53,6 @@ export function ProductCard({
       price,
       quantity: 1,
       image,
-      color: colors[0],
     });
   };
 
@@ -168,30 +140,6 @@ export function ProductCard({
         </Group>
 
         {/* Wishlist Button - Floating */}
-        <ActionIcon
-          onClick={handleToggleWishlist}
-          variant="transparent"
-          style={{
-            position: "absolute",
-            top: 12,
-            right: 12,
-            zIndex: 10,
-            transition: "all 0.3s ease",
-            transform: isHovered ? "translateY(0)" : "translateY(-5px)",
-            opacity: isHovered ? 1 : 0,
-          }}
-        >
-          <IconHeart
-            size={22}
-            stroke={1.5}
-            color={
-              isWishlisted
-                ? "var(--mantine-color-red-9)"
-                : "var(--mantine-color-bazim-navy-6)"
-            }
-            fill={isWishlisted ? "currentColor" : "none"}
-          />
-        </ActionIcon>
 
         {/* Quick Add Button - Bottom Overlay */}
         <Transition
@@ -272,29 +220,6 @@ export function ProductCard({
             )}
           </Stack>
         </Group>
-
-        {/* Color Palette (Minimal Dots) */}
-        {colors.length > 0 && (
-          <Group gap={6} mt={4}>
-            {colors.slice(0, 4).map((color, idx) => (
-              <Box
-                key={idx}
-                w={8}
-                h={8}
-                style={{
-                  borderRadius: "50%",
-                  background: color,
-                  border: "1px solid rgba(0,0,0,0.1)",
-                }}
-              />
-            ))}
-            {colors.length > 4 && (
-              <Text size="xs" c="dimmed" fw={500}>
-                +{colors.length - 4}
-              </Text>
-            )}
-          </Group>
-        )}
       </Stack>
     </Card>
   );

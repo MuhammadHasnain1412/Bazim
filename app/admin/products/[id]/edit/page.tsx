@@ -6,7 +6,6 @@ import {
   Stack,
   TextInput,
   NumberInput,
-  Select,
   Button,
   Textarea,
   Group,
@@ -15,14 +14,16 @@ import {
   Text,
   LoadingOverlay,
   Skeleton,
+  Badge,
+  Paper,
 } from "@mantine/core";
+import { IconStar } from "@tabler/icons-react";
 import { useForm } from "@mantine/form";
 import { useRouter } from "next/navigation";
 import { ImageUploader } from "@/components/admin/ImageUploader";
 import { useEffect, useState } from "react";
 import { notifications } from "@mantine/notifications";
 import { safeLocalStorage } from "@/lib/localStorage";
-import { FABRIC_TYPES } from "@/lib/constants";
 
 interface EditProductForm {
   name: string;
@@ -31,10 +32,7 @@ interface EditProductForm {
   price: number;
   stock: number;
   fabricType: string;
-  fabricGSM: string;
-  designType: string;
   images: string[];
-  colors: string;
   featured: boolean;
 }
 
@@ -46,11 +44,17 @@ interface Product {
   price: number;
   stock: number;
   fabricType: string;
-  fabricGSM: string;
-  designType: string;
   images: string[];
-  colors: string;
   featured: boolean;
+  reviews: {
+    id: string;
+    rating: number;
+    comment: string;
+    userName: string;
+    userEmail: string;
+    isActive: boolean;
+    createdAt: string;
+  }[];
 }
 
 export default function EditProductPage({
@@ -61,11 +65,7 @@ export default function EditProductPage({
   const router = useRouter();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
-  const [categories, setCategories] = useState<
-    { value: string; label: string }[]
-  >([]);
   const [submitting, setSubmitting] = useState(false);
-  const [fabricOptions, setFabricOptions] = useState(FABRIC_TYPES);
 
   const form = useForm<EditProductForm>({
     initialValues: {
@@ -75,10 +75,7 @@ export default function EditProductPage({
       price: 0,
       stock: 0,
       fabricType: "",
-      fabricGSM: "",
-      designType: "",
       images: [],
-      colors: "",
       featured: false,
     },
   });
@@ -100,25 +97,6 @@ export default function EditProductPage({
           const productData = data.product;
 
           setProduct(productData);
-          // Handle Fabric Type normalization
-          const incomingFabric = productData.fabricType || "";
-          const normalizedFabric = incomingFabric.toLowerCase();
-          const existingOption = FABRIC_TYPES.find(
-            (f) => f.value === normalizedFabric
-          );
-
-          let finalFabricValue = "";
-
-          if (existingOption) {
-            finalFabricValue = existingOption.value;
-          } else if (incomingFabric) {
-            // It's a custom/legacy value
-            setFabricOptions((prev) => [
-              ...prev,
-              { value: incomingFabric, label: incomingFabric },
-            ]);
-            finalFabricValue = incomingFabric;
-          }
 
           form.setValues({
             name: productData.name,
@@ -126,13 +104,8 @@ export default function EditProductPage({
             description: productData.description,
             price: Number(productData.price),
             stock: productData.stock,
-            fabricType: finalFabricValue,
-            fabricGSM: productData.fabricGSM,
-            designType: productData.designType,
+            fabricType: productData.fabricType,
             images: productData.images?.map((img: any) => img.id) || [],
-            colors: Array.isArray(productData.colors)
-              ? productData.colors.join(", ")
-              : productData.colors,
             featured: productData.featured,
           });
         } else {
@@ -175,8 +148,6 @@ export default function EditProductPage({
           ...values,
           price: Number(values.price),
           stock: Number(values.stock),
-          colors: values.colors.split(",").map((color) => color.trim()),
-          sizes: [],
         }),
       });
 
@@ -289,26 +260,10 @@ export default function EditProductPage({
 
             <GridCol span={{ base: 12, md: 6 }}>
               <Stack gap="md">
-                <Select
+                <TextInput
                   label="Fabric Type"
-                  placeholder="Select fabric type"
-                  data={fabricOptions}
-                  searchable
+                  placeholder="Enter fabric type"
                   {...form.getInputProps("fabricType")}
-                  required
-                />
-
-                <TextInput
-                  label="Fabric GSM"
-                  placeholder="180 GSM"
-                  {...form.getInputProps("fabricGSM")}
-                  required
-                />
-
-                <TextInput
-                  label="Design Type"
-                  placeholder="Plain, Embroidered, etc."
-                  {...form.getInputProps("designType")}
                   required
                 />
 
@@ -322,13 +277,6 @@ export default function EditProductPage({
                     maxImages={5}
                   />
                 </div>
-
-                <Textarea
-                  label="Colors (comma separated)"
-                  placeholder="#FFFFFF, #000000, #4169E1"
-                  {...form.getInputProps("colors")}
-                  required
-                />
               </Stack>
             </GridCol>
           </Grid>
@@ -342,6 +290,204 @@ export default function EditProductPage({
             </Button>
           </Group>
         </form>
+
+        <Stack gap="md" mt="xl">
+          <Group justify="space-between" align="center">
+            <Title order={2} size="h3">
+              Product Reviews
+            </Title>
+            <Badge size="lg" variant="light" color="gray">
+              {product?.reviews?.length || 0} Total Reviews
+            </Badge>
+          </Group>
+
+          {product?.reviews && product.reviews.length > 0 ? (
+            <div style={{ overflowX: "auto" }}>
+              <table
+                style={{
+                  width: "100%",
+                  borderCollapse: "collapse",
+                  border: "1px solid #eee",
+                  borderRadius: "8px",
+                  overflow: "hidden",
+                }}
+              >
+                <thead>
+                  <tr style={{ backgroundColor: "#f8f9fa" }}>
+                    <th
+                      style={{
+                        padding: "16px",
+                        textAlign: "left",
+                        borderBottom: "1px solid #eee",
+                      }}
+                    >
+                      User
+                    </th>
+                    <th
+                      style={{
+                        padding: "16px",
+                        textAlign: "left",
+                        borderBottom: "1px solid #eee",
+                      }}
+                    >
+                      Rating
+                    </th>
+                    <th
+                      style={{
+                        padding: "16px",
+                        textAlign: "left",
+                        borderBottom: "1px solid #eee",
+                        width: "40%",
+                      }}
+                    >
+                      Comment
+                    </th>
+                    <th
+                      style={{
+                        padding: "16px",
+                        textAlign: "left",
+                        borderBottom: "1px solid #eee",
+                      }}
+                    >
+                      Date
+                    </th>
+                    <th
+                      style={{
+                        padding: "16px",
+                        textAlign: "left",
+                        borderBottom: "1px solid #eee",
+                      }}
+                    >
+                      Status
+                    </th>
+                    <th
+                      style={{
+                        padding: "16px",
+                        textAlign: "right",
+                        borderBottom: "1px solid #eee",
+                      }}
+                    >
+                      Action
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {product.reviews.map((review) => (
+                    <tr
+                      key={review.id}
+                      style={{ borderBottom: "1px solid #eee" }}
+                    >
+                      <td style={{ padding: "16px" }}>
+                        <Stack gap={0}>
+                          <Text fw={600} size="sm">
+                            {review.userName}
+                          </Text>
+                          <Text size="xs" c="dimmed">
+                            {review.userEmail}
+                          </Text>
+                        </Stack>
+                      </td>
+                      <td style={{ padding: "16px" }}>
+                        <Group gap={4}>
+                          <Text fw={600} size="sm">
+                            {review.rating}
+                          </Text>
+                          <IconStar
+                            size={14}
+                            fill="#FFD700"
+                            color="#FFD700"
+                            style={{ marginTop: -2 }}
+                          />
+                        </Group>
+                      </td>
+                      <td style={{ padding: "16px" }}>
+                        <Text size="sm" lineClamp={2}>
+                          {review.comment}
+                        </Text>
+                      </td>
+                      <td style={{ padding: "16px" }}>
+                        <Text size="sm" c="gray.6">
+                          {new Date(review.createdAt).toLocaleDateString()}
+                        </Text>
+                      </td>
+                      <td style={{ padding: "16px" }}>
+                        <Badge
+                          color={review.isActive ? "green" : "red"}
+                          variant="light"
+                        >
+                          {review.isActive ? "Active" : "Hidden"}
+                        </Badge>
+                      </td>
+                      <td style={{ padding: "16px", textAlign: "right" }}>
+                        <Button
+                          size="xs"
+                          variant="outline"
+                          color={review.isActive ? "red" : "green"}
+                          onClick={async () => {
+                            try {
+                              const token =
+                                safeLocalStorage.getItem("adminToken");
+                              const response = await fetch(
+                                `/api/reviews/${review.id}/toggle-status`,
+                                {
+                                  method: "PATCH",
+                                  headers: {
+                                    Authorization: `Bearer ${token}`,
+                                    "Content-Type": "application/json",
+                                  },
+                                  body: JSON.stringify({
+                                    isActive: !review.isActive,
+                                  }),
+                                }
+                              );
+
+                              if (response.ok) {
+                                notifications.show({
+                                  title: "Success",
+                                  message: `Review ${
+                                    !review.isActive
+                                      ? "activated"
+                                      : "deactivated"
+                                  }`,
+                                  color: "green",
+                                });
+                                // Refresh product data
+                                const productResponse = await fetch(
+                                  `/api/products/${product.id}`,
+                                  {
+                                    headers: {
+                                      Authorization: `Bearer ${token}`,
+                                    },
+                                  }
+                                );
+                                const data = await productResponse.json();
+                                setProduct(data.product);
+                              } else {
+                                throw new Error("Failed to update status");
+                              }
+                            } catch (error) {
+                              notifications.show({
+                                title: "Error",
+                                message: "Failed to update review status",
+                                color: "red",
+                              });
+                            }
+                          }}
+                        >
+                          {review.isActive ? "Hide" : "Show"}
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <Paper p="xl" withBorder bg="gray.0" ta="center">
+              <Text c="dimmed">No reviews yet for this product.</Text>
+            </Paper>
+          )}
+        </Stack>
       </Stack>
     </Container>
   );

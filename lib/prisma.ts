@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { PrismaMariaDb } from "@prisma/adapter-mariadb";
+import { logger } from "./utils/logger";
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
@@ -31,36 +32,33 @@ function parseDatabaseUrl(url: string | undefined) {
 
 // Create the adapter with connection configuration
 const connectionParams = parseDatabaseUrl(process.env.DATABASE_URL);
-const adapter = new PrismaMariaDb({
-  host: connectionParams.host,
-  user: connectionParams.user,
-  password: connectionParams.password,
-  database: connectionParams.database,
-  port: connectionParams.port,
-});
 
 export const prisma =
   globalForPrisma.prisma ??
-  new PrismaClient({
-    adapter,
-    log:
-      process.env.NODE_ENV === "development"
-        ? ["query", "error", "warn"]
-        : ["error"],
-  });
+  (() => {
+    const adapter = new PrismaMariaDb({
+      host: connectionParams.host,
+      user: connectionParams.user,
+      password: connectionParams.password,
+      database: connectionParams.database,
+      port: connectionParams.port,
+      connectionLimit: 20,
+    });
+
+    return new PrismaClient({
+      adapter,
+      log:
+        process.env.NODE_ENV === "development"
+          ? ["query", "error", "warn"]
+          : ["error"],
+    });
+  })();
 
 if (process.env.NODE_ENV !== "production") {
   globalForPrisma.prisma = prisma;
 }
 
-// Handle connection errors
-prisma
-  .$connect()
-  .then(() => {
-    if (process.env.NODE_ENV === "development") {
-      console.log("Database connected successfully");
-    }
-  })
-  .catch((error) => {
-    console.error("Database connection failed:", error);
-  });
+// Log database connection info (connection happens lazily)
+logger.info(
+  `Database configured: ${connectionParams.host}:${connectionParams.port}/${connectionParams.database}`
+);

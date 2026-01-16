@@ -1,7 +1,7 @@
 import { Footer } from "@/components/shared/Footer";
 import { Navbar } from "@/components/shared/Navbar";
 import { CartProvider } from "@/context/CartContext";
-import { WishlistProvider } from "@/context/WishlistContext";
+import { WhatsAppWidget } from "@/components/shared/WhatsAppWidget";
 
 export default function CustomerLayout({
   children,
@@ -10,11 +10,10 @@ export default function CustomerLayout({
 }) {
   return (
     <CartProvider>
-      <WishlistProvider>
-        <Navbar />
-        <main>{children}</main>
-        <Footer />
-      </WishlistProvider>
+      <Navbar />
+      <main>{children}</main>
+      <WhatsAppWidget />
+      <Footer />
     </CartProvider>
   );
 }

@@ -61,7 +61,7 @@ export default function AdminLoginPage() {
         router.push("/admin");
       } else {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Login failed");
+        throw new Error(errorData.details || errorData.error || "Login failed");
       }
     } catch (error) {
       notifications.show({

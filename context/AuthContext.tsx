@@ -1,6 +1,12 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
 import { safeLocalStorage } from "@/lib/localStorage";
 
 interface User {
@@ -77,7 +83,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, isLoading, isAdmin: !!user }}>
+    <AuthContext.Provider
+      value={{ user, login, logout, isLoading, isAdmin: !!user }}
+    >
       {children}
     </AuthContext.Provider>
   );

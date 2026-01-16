@@ -1,6 +1,6 @@
 export const DEFAULT_PRODUCT_IMAGE = "/images/testimg.jpeg";
 export const COMPANY_CONTACT = {
-  phone: "+92 300 1234567",
+  phone: "03323344402",
   email: "info@bazim.com",
   address: "123 Main Street",
 };
@@ -20,20 +20,3 @@ export const HERO_CONTENT = {
   ctaText: "Shop Collection",
   ctaLink: "/products",
 };
-
-export const FABRIC_TYPES = [
-  { value: "cotton", label: "Cotton" },
-  { value: "lawn", label: "Lawn" },
-  { value: "cambric", label: "Cambric" },
-  { value: "silk", label: "Silk" },
-  { value: "raw-silk", label: "Raw Silk" },
-  { value: "tussar-silk", label: "Tussar Silk" },
-  { value: "dupioni-silk", label: "Dupioni Silk" },
-  { value: "linen", label: "Linen" },
-  { value: "chiffon", label: "Chiffon" },
-  { value: "georgette", label: "Georgette" },
-  { value: "wool", label: "Wool" },
-  { value: "velvet", label: "Velvet" },
-  { value: "khaddar", label: "Khaddar" },
-  { value: "organza", label: "Organza" },
-];

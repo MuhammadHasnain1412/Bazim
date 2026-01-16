@@ -9,16 +9,15 @@ import {
   ActionIcon,
   Indicator,
 } from "@mantine/core";
-import { IconHeart, IconShoppingCart } from "@tabler/icons-react";
+import { IconShoppingCart, IconBrandWhatsapp } from "@tabler/icons-react";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
-import { useWishlist } from "@/context/WishlistContext";
 import { usePathname } from "next/navigation";
+import { COMPANY_CONTACT } from "@/lib/constants";
 
 export function Navbar() {
   const pathname = usePathname();
   const { itemCount } = useCart();
-  const { wishlist } = useWishlist();
 
   return (
     <Box
@@ -44,15 +43,15 @@ export function Navbar() {
       </svg>
 
       <Container size="xl">
-        <Group justify="space-between" align="center" h={110}>
+        <Group justify="space-between" align="center" h={100}>
           {/* Logo */}
           <Link href="/" style={{ textDecoration: "none" }}>
             <Group gap="sm">
               <img
-                src="/logo.png?v=11"
+                src="/HEADER.png?v=11"
                 alt="Bazim"
                 style={{
-                  height: "110px",
+                  height: "70px",
                   width: "auto",
                   filter: "url(#remove-white) contrast(1.1)",
                   display: "block",
@@ -90,26 +89,17 @@ export function Navbar() {
           </Group>
 
           <Group gap="xs">
-            <Indicator
-              label={wishlist.length}
-              size={16}
-              color="bazim-navy"
-              disabled={wishlist.length === 0}
-              offset={4}
-              styles={{
-                indicator: {
-                  fontSize: "10px",
-                  fontWeight: 700,
-                },
-              }}
+            <ActionIcon
+              component="a"
+              href={`https://wa.me/${COMPANY_CONTACT.phone.replace(/\D/g, "")}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              variant="transparent"
+              c="bazim-navy"
+              size="lg"
             >
-              <Link href="/wishlist" style={{ textDecoration: "none" }}>
-                <ActionIcon variant="transparent" c="bazim-navy" size="lg">
-                  <IconHeart size={20} stroke={1.5} />
-                </ActionIcon>
-              </Link>
-            </Indicator>
-
+              <IconBrandWhatsapp size={20} stroke={1.5} />
+            </ActionIcon>
             <Indicator
               label={itemCount}
               size={16}

@@ -162,23 +162,6 @@ export default function CartPage() {
                           </Text>
                         </Box>
 
-                        {item.color && (
-                          <Group gap="xs" mt={4}>
-                            <Text size="xs" c="dimmed" tt="uppercase" lts={1}>
-                              Color:
-                            </Text>
-                            <Box
-                              style={{
-                                width: 14,
-                                height: 14,
-                                borderRadius: "50%",
-                                backgroundColor: item.color,
-                                border: "1px solid rgba(0,0,0,0.1)",
-                              }}
-                            />
-                          </Group>
-                        )}
-
                         <Text fw={700} size="md" mt="auto">
                           Rs {Number(item.price).toLocaleString()}
                         </Text>

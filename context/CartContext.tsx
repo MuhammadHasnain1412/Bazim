@@ -17,7 +17,6 @@ interface CartItem {
   price: number;
   quantity: number;
   image: string;
-  color?: string;
 }
 
 interface CartContextType {
@@ -76,7 +75,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
         body: JSON.stringify({
           productId: item.productId,
           quantity: item.quantity,
-          color: item.color || "",
         }),
       });
 
@@ -95,9 +93,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
       // Update local cart state
       setItems((prev) => {
-        const existingItem = prev.find(
-          (i) => i.productId === item.productId && i.color === item.color
-        );
+        const existingItem = prev.find((i) => i.productId === item.productId);
 
         if (existingItem) {
           return prev.map((i) =>
@@ -156,7 +152,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
           body: JSON.stringify({
             productId: item.productId,
             quantity: quantity - item.quantity, // Additional quantity requested
-            color: item.color || "",
           }),
         });
 

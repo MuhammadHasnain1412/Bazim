@@ -18,7 +18,7 @@ export function AdminProtected({ children }: AdminProtectedProps) {
     const checkAuth = async () => {
       try {
         const token = safeLocalStorage.getItem("adminToken");
-        
+
         if (!token) {
           router.push("/admin/login");
           return;

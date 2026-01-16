@@ -23,7 +23,7 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('ErrorBoundary caught an error:', error, errorInfo);
+    console.error("ErrorBoundary caught an error:", error, errorInfo);
   }
 
   render() {
@@ -32,11 +32,9 @@ export class ErrorBoundary extends Component<Props, State> {
         <Container size="xl" py="xl">
           <Title order={1}>Something went wrong</Title>
           <Text mb="md">
-            {this.state.error?.message || 'An unexpected error occurred'}
+            {this.state.error?.message || "An unexpected error occurred"}
           </Text>
-          <Button onClick={() => window.location.reload()}>
-            Reload Page
-          </Button>
+          <Button onClick={() => window.location.reload()}>Reload Page</Button>
         </Container>
       );
     }

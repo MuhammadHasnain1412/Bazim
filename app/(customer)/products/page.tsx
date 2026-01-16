@@ -16,7 +16,6 @@ import {
   Button,
   Select,
   Box,
-  BackgroundImage,
 } from "@mantine/core";
 import { useEffect, useState, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
@@ -30,18 +29,18 @@ interface Product {
   stock: number;
   featured: boolean;
   images: { id: string }[];
-  colors: string;
   sizes: string;
   fabricType: string;
   createdAt: string;
   updatedAt: string;
 }
 
-export default function ProductsPage() {
+import { Suspense } from "react";
+
+function ProductsContent() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Filter states
   // Filter states
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 50000]);
   const [onlyInStock, setOnlyInStock] = useState(false);
@@ -113,20 +112,6 @@ export default function ProductsPage() {
   }, [products]);
 
   const formatProductCard = (product: Product) => {
-    let colors: string[] = [];
-    try {
-      const parsed = JSON.parse(product.colors || "[]");
-      if (Array.isArray(parsed)) {
-        colors = parsed;
-      } else if (typeof parsed === "string") {
-        colors = [parsed];
-      }
-    } catch (e) {
-      // Fallback for comma-separated strings
-      colors = product.colors
-        ? product.colors.split(",").map((c) => c.trim())
-        : [];
-    }
     const imageId =
       Array.isArray(product.images) && product.images.length > 0
         ? product.images[0].id
@@ -139,7 +124,6 @@ export default function ProductsPage() {
       image: imageId ? `/api/upload?id=${imageId}` : "/images/testimg.jpeg",
       fabricType: product.fabricType || "Premium Fabric",
       inStock: product.stock > 0,
-      colors: colors,
       badge: product.featured ? "Featured" : undefined,
     };
   };
@@ -169,68 +153,32 @@ export default function ProductsPage() {
   if (loading)
     return (
       <>
-        <BackgroundImage
-          src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200&h=400&fit=crop&auto=format&q=80"
-          h={400}
-          style={{
-            position: "relative",
-            backgroundImage:
-              "url('https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200&h=400&fit=crop&auto=format&q=80')",
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            backgroundColor: "#f5f5f5",
-          }}
-        >
-          <Box
-            style={{
-              position: "absolute",
-              inset: 0,
-              backgroundColor: "rgba(0, 0, 0, 0.4)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <Container size="xl">
-              <Stack align="center" gap="xs">
-                <Text
-                  size="xs"
-                  c="white"
-                  tt="uppercase"
-                  lts={3}
-                  fw={400}
-                  style={{ fontFamily: "Georgia, serif" }}
-                >
-                  Curated Collections
-                </Text>
-                <Title
-                  order={1}
-                  c="white"
-                  tt="uppercase"
-                  lts={4}
-                  fw={400}
-                  size={48}
-                  style={{ fontFamily: "Georgia, serif" }}
-                >
-                  All Products
-                </Title>
-                <Box w={60} h={1} bg="white" mt="xs" />
-                <Text
-                  c="white"
-                  size="sm"
-                  maw={600}
-                  ta="center"
-                  mt="md"
-                  style={{ fontFamily: "Georgia, serif" }}
-                >
-                  Discover our complete range of premium unstitched fabrics,
-                  crafted for the modern gentleman who values tradition and
-                  quality.
-                </Text>
-              </Stack>
-            </Container>
-          </Box>
-        </BackgroundImage>
+        <Container size="xl" pt={60}>
+          <Stack align="center" gap="xs">
+            <Text
+              size="xs"
+              c="dimmed"
+              tt="uppercase"
+              lts={3}
+              fw={400}
+              style={{ fontFamily: "Georgia, serif" }}
+            >
+              Curated Collections
+            </Text>
+            <Title
+              order={1}
+              c="#2c2c2c"
+              tt="uppercase"
+              lts={4}
+              fw={400}
+              size={48}
+              style={{ fontFamily: "Georgia, serif" }}
+            >
+              All Products
+            </Title>
+            <Box w={60} h={1} bg="#2c2c2c" mt="xs" />
+          </Stack>
+        </Container>
         {skeletons}
       </>
     );
@@ -238,68 +186,32 @@ export default function ProductsPage() {
   return (
     <Box bg="#fafaf8" style={{ minHeight: "100vh" }}>
       {/* Hero Section */}
-      <BackgroundImage
-        src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200&h=400&fit=crop&auto=format&q=80"
-        h={400}
-        style={{
-          position: "relative",
-          backgroundImage:
-            "url('https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200&h=400&fit=crop&auto=format&q=80')",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundColor: "#f5f5f5",
-        }}
-      >
-        <Box
-          style={{
-            position: "absolute",
-            inset: 0,
-            backgroundColor: "rgba(0, 0, 0, 0.4)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <Container size="xl">
-            <Stack align="center" gap="xs">
-              <Text
-                size="xs"
-                c="white"
-                tt="uppercase"
-                lts={3}
-                fw={400}
-                style={{ fontFamily: "Georgia, serif" }}
-              >
-                Curated Collections
-              </Text>
-              <Title
-                order={1}
-                c="white"
-                tt="uppercase"
-                lts={4}
-                fw={400}
-                size={48}
-                style={{ fontFamily: "Georgia, serif" }}
-              >
-                All Products
-              </Title>
-              <Box w={60} h={1} bg="white" mt="xs" />
-              <Text
-                c="white"
-                size="sm"
-                maw={600}
-                ta="center"
-                mt="md"
-                style={{ fontFamily: "Georgia, serif" }}
-              >
-                Discover our complete range of premium unstitched fabrics,
-                crafted for the modern gentleman who values tradition and
-                quality.
-              </Text>
-            </Stack>
-          </Container>
-        </Box>
-      </BackgroundImage>
+      <Container size="xl" pt={60}>
+        <Stack align="center" gap="xs">
+          <Text
+            size="xs"
+            c="dimmed"
+            tt="uppercase"
+            lts={3}
+            fw={400}
+            style={{ fontFamily: "Georgia, serif" }}
+          >
+            Curated Collections
+          </Text>
+          <Title
+            order={1}
+            c="#2c2c2c"
+            tt="uppercase"
+            lts={4}
+            fw={400}
+            size={48}
+            style={{ fontFamily: "Georgia, serif" }}
+          >
+            All Products
+          </Title>
+          <Box w={60} h={1} bg="#2c2c2c" mt="xs" />
+        </Stack>
+      </Container>
 
       <Container size="xl" py={60}>
         <Grid gutter={40}>
@@ -505,5 +417,13 @@ export default function ProductsPage() {
         </Grid>
       </Container>
     </Box>
+  );
+}
+
+export default function ProductsPage() {
+  return (
+    <Suspense fallback={<div />}>
+      <ProductsContent />
+    </Suspense>
   );
 }

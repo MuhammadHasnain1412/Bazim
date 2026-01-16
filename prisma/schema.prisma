@@ -16,9 +16,9 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  orders   Order[]
-  wishlist WishlistItem[]
-  cart     CartItem[]
+  orders Order[]
+
+  cart CartItem[]
 }
 
 enum Role {
@@ -34,20 +34,16 @@ model Product {
   price       Decimal  @db.Decimal(10, 2)
   stock       Int      @default(0)
   fabricType  String
-  fabricGSM   String
-  designType  String
   images      Image[]
-  colors      String   @db.Text
-  sizes       String   @db.Text
   featured    Boolean  @default(false)
   viewCount   Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  reviews       Review[]
-  cartItems     CartItem[]
-  wishlistItems WishlistItem[]
-  orderItems    OrderItem[]
+  reviews   Review[]
+  cartItems CartItem[]
+
+  orderItems OrderItem[]
 
   @@index([featured])
 }
@@ -73,6 +69,8 @@ model Review {
   product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
   userId    String?
   userName  String
+  userEmail String?
+  isActive  Boolean  @default(false)
   createdAt DateTime @default(now())
 
   @@index([productId])
@@ -85,19 +83,6 @@ model CartItem {
   productId String
   product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
   quantity  Int      @default(1)
-  color     String?
-  createdAt DateTime @default(now())
-
-  @@unique([userId, productId, color])
-  @@index([userId])
-}
-
-model WishlistItem {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  productId String
-  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
 
   @@unique([userId, productId])
@@ -138,7 +123,6 @@ model OrderItem {
   product   Product @relation(fields: [productId], references: [id])
   quantity  Int
   price     Decimal @db.Decimal(10, 2)
-  color     String?
 
   @@index([orderId])
 }

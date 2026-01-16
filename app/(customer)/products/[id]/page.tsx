@@ -29,7 +29,6 @@ interface Product {
   stock: number;
   featured: boolean;
   images: any;
-  colors: string;
   reviews: {
     id: string;
     rating: number;
@@ -116,22 +115,6 @@ export default function ProductPage() {
       }
     }
 
-    let colors: string[] = [];
-    try {
-      const parsed = JSON.parse(product.colors || "[]");
-      if (Array.isArray(parsed)) {
-        colors = parsed;
-      } else if (typeof parsed === "string") {
-        colors = [parsed];
-      }
-    } catch (e) {
-      if (product.colors) {
-        colors = product.colors.includes(",")
-          ? product.colors.split(",").map((c) => c.trim())
-          : [product.colors];
-      }
-    }
-
     const reviews = product.reviews || [];
     const avgRating =
       reviews.length > 0
@@ -145,7 +128,6 @@ export default function ProductPage() {
       image: imageUrl,
       fabricType: "Premium Fabric", // Replaced category with hardcoded or other field, since category is gone
       inStock: product.stock > 0,
-      colors: colors,
       badge: product.featured ? "Featured" : undefined,
       description: product.description,
       rating: avgRating,

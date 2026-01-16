@@ -1,40 +1,51 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getUserFromRequest } from "@/lib/auth";
+import { requireAdmin } from "@/lib/api/middleware";
+import { successResponse, errorResponse } from "@/lib/api/responses";
+import {
+  createProductSchema,
+  productQuerySchema,
+} from "@/lib/validation/product";
+import { logger } from "@/lib/utils/logger";
+import { generateUniqueProductSlug } from "@/lib/utils/slug";
+import { Prisma } from "@prisma/client";
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const fabric = searchParams.get("fabric");
-    const featured = searchParams.get("featured");
-    const search = searchParams.get("search");
 
-    const isNew = searchParams.get("new");
+    // Validate query parameters
+    const query = productQuerySchema.parse({
+      fabric: searchParams.get("fabric") ?? undefined,
+      featured: searchParams.get("featured") ?? undefined,
+      search: searchParams.get("search") ?? undefined,
+      new: searchParams.get("new") ?? undefined,
+    });
 
-    const filterClauses: any[] = [];
+    // Build type-safe filter clauses
+    const filterClauses: Prisma.ProductWhereInput[] = [];
 
-    if (fabric) {
+    if (query.fabric) {
       filterClauses.push({
-        fabricType: { contains: fabric },
+        fabricType: { contains: query.fabric },
       });
     }
 
-    if (featured === "true") {
+    if (query.featured === "true") {
       filterClauses.push({ featured: true });
     }
 
-    // 'new' is handled by orderBy in findMany below
-
-    if (search) {
+    if (query.search) {
       filterClauses.push({
         OR: [
-          { name: { contains: search } },
-          { description: { contains: search } },
+          { name: { contains: query.search } },
+          { description: { contains: query.search } },
         ],
       });
     }
 
-    const where = filterClauses.length > 0 ? { AND: filterClauses } : {};
+    const where: Prisma.ProductWhereInput =
+      filterClauses.length > 0 ? { AND: filterClauses } : {};
 
     const products = await prisma.product.findMany({
       where,
@@ -48,56 +59,42 @@ export async function GET(request: NextRequest) {
       orderBy: { createdAt: "desc" },
     });
 
-    return NextResponse.json({ products });
+    return successResponse({ products });
   } catch (error) {
-    return NextResponse.json(
-      { error: "Failed to fetch products" },
-      { status: 500 }
-    );
+    return errorResponse(error, "Failed to fetch products");
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const tokenData = getUserFromRequest(request);
-    if (!tokenData) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    // Require admin authentication
+    await requireAdmin(request);
 
-    const user = await prisma.user.findUnique({
-      where: { id: tokenData.userId },
-    });
+    // Parse and validate request body
+    const body = await request.json();
+    const validatedData = createProductSchema.parse(body);
 
-    if (user?.role !== "ADMIN") {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
+    // Generate unique slug
+    const uniqueSlug = await generateUniqueProductSlug(validatedData.slug);
 
-    const data = await request.json();
-
+    // Create product
     const product = await prisma.product.create({
       data: {
-        name: data.name,
-        slug: data.slug,
-        description: data.description,
-        price: data.price,
-        stock: data.stock,
-        fabricType: data.fabricType,
-        fabricGSM: data.fabricGSM,
-        designType: data.designType,
-        colors: Array.isArray(data.colors)
-          ? data.colors.join(", ")
-          : data.colors,
-        sizes: Array.isArray(data.sizes) ? data.sizes.join(", ") : data.sizes,
-        featured: data.featured || false,
+        name: validatedData.name,
+        slug: uniqueSlug,
+        description: validatedData.description,
+        price: validatedData.price,
+        stock: validatedData.stock,
+        fabricType: validatedData.fabricType,
+        featured: validatedData.featured,
       },
     });
 
-    return NextResponse.json({ product }, { status: 201 });
+    logger.info(`Product created: ${product.id} - ${product.name}`);
+
+    return successResponse({ product }, 201);
   } catch (error) {
-    console.error("Error creating product:", error);
-    return NextResponse.json(
-      { error: "Failed to create product" },
-      { status: 500 }
-    );
+    logger.error("Error creating product:", error);
+    return errorResponse(error, "Failed to create product");
   }
 }

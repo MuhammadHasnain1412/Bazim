@@ -1,38 +1,57 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getUserFromRequest } from "@/lib/auth";
+import { requireAuth, getOptionalUser } from "@/lib/api/middleware";
+import { successResponse, errorResponse } from "@/lib/api/responses";
+import { addToCartSchema } from "@/lib/validation/cart";
+import { NotFoundError } from "@/lib/api/errors";
+
+interface CartResponse {
+  item: {
+    id: string;
+    userId?: string;
+    productId: string;
+    quantity: number;
+    product: unknown;
+  };
+  warning?: {
+    type: "low_stock";
+    message: string;
+    remainingStock: number;
+  };
+}
 
 export async function GET(request: NextRequest) {
   try {
-    const tokenData = getUserFromRequest(request);
-    if (!tokenData) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const tokenData = await requireAuth(request);
 
     const cartItems = await prisma.cartItem.findMany({
       where: { userId: tokenData.userId },
       include: {
         product: {
           include: {
-            category: true,
+            images: {
+              select: {
+                id: true,
+              },
+            },
           },
         },
       },
     });
 
-    return NextResponse.json({ items: cartItems });
+    return successResponse({ items: cartItems });
   } catch (error) {
-    return NextResponse.json(
-      { error: "Failed to fetch cart" },
-      { status: 500 }
-    );
+    return errorResponse(error, "Failed to fetch cart");
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const tokenData = getUserFromRequest(request);
-    const { productId, quantity, color } = await request.json();
+    const tokenData = getOptionalUser(request);
+
+    // Parse and validate request body
+    const body = await request.json();
+    const { productId, quantity } = addToCartSchema.parse(body);
 
     // Get product to check stock availability
     const product = await prisma.product.findUnique({
@@ -40,7 +59,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (!product) {
-      return NextResponse.json({ error: "Product not found" }, { status: 404 });
+      throw new NotFoundError("Product not found");
     }
 
     // Get existing cart item to check new total quantity
@@ -48,10 +67,9 @@ export async function POST(request: NextRequest) {
     if (tokenData) {
       existingCartItem = await prisma.cartItem.findUnique({
         where: {
-          userId_productId_color: {
+          userId_productId: {
             userId: tokenData.userId,
             productId,
-            color: color || "",
           },
         },
       });
@@ -65,7 +83,8 @@ export async function POST(request: NextRequest) {
     if (newTotalQuantity > product.stock) {
       const availableQuantity =
         product.stock - (existingCartItem?.quantity || 0);
-      return NextResponse.json(
+
+      return successResponse(
         {
           error: "Insufficient stock",
           details: `Only ${availableQuantity} more units of "${product.name}" can be added to cart. Total available: ${product.stock}`,
@@ -73,7 +92,7 @@ export async function POST(request: NextRequest) {
           currentStock: product.stock,
           currentCartQuantity: existingCartItem?.quantity || 0,
         },
-        { status: 400 }
+        400
       );
     }
 
@@ -82,17 +101,15 @@ export async function POST(request: NextRequest) {
       // Logged-in user: update database cart
       cartItem = await prisma.cartItem.upsert({
         where: {
-          userId_productId_color: {
+          userId_productId: {
             userId: tokenData.userId,
             productId,
-            color: color || "",
           },
         },
         create: {
           userId: tokenData.userId,
           productId,
           quantity,
-          color,
         },
         update: {
           quantity: { increment: quantity },
@@ -107,13 +124,13 @@ export async function POST(request: NextRequest) {
         id: `${productId}-${Date.now()}`,
         productId,
         quantity,
-        color,
         product,
       };
     }
 
-    // Add stock warning if running low
-    const response: any = { item: cartItem };
+    // Build response with optional stock warning
+    const response: CartResponse = { item: cartItem };
+
     if (product.stock <= 3) {
       response.warning = {
         type: "low_stock",
@@ -122,27 +139,21 @@ export async function POST(request: NextRequest) {
       };
     }
 
-    return NextResponse.json(response);
+    return successResponse(response);
   } catch (error) {
-    return NextResponse.json(
-      { error: "Failed to add to cart" },
-      { status: 500 }
-    );
+    return errorResponse(error, "Failed to add to cart");
   }
 }
 
 export async function DELETE(request: NextRequest) {
   try {
-    const tokenData = getUserFromRequest(request);
-    if (!tokenData) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const tokenData = await requireAuth(request);
 
     const { searchParams } = new URL(request.url);
     const itemId = searchParams.get("id");
 
     if (!itemId) {
-      return NextResponse.json({ error: "Item ID required" }, { status: 400 });
+      return successResponse({ error: "Item ID required" }, 400);
     }
 
     await prisma.cartItem.delete({
@@ -152,11 +163,8 @@ export async function DELETE(request: NextRequest) {
       },
     });
 
-    return NextResponse.json({ success: true });
+    return successResponse({ success: true });
   } catch (error) {
-    return NextResponse.json(
-      { error: "Failed to remove from cart" },
-      { status: 500 }
-    );
+    return errorResponse(error, "Failed to remove from cart");
   }
 }
