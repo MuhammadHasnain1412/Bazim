@@ -104,9 +104,9 @@ export function FeaturedProductsSection() {
               Check out our latest collection
             </Text>
           </div>
-          <Grid>
+          <Grid gutter={{ base: 20, md: 30 }}>
             {[...Array(4)].map((_, index) => (
-              <GridCol key={index} span={{ base: 12, sm: 6, md: 3 }}>
+              <GridCol key={index} span={{ base: 6, md: 3 }}>
                 <Stack gap="md">
                   <Skeleton height={280} radius="md" />
                   <Skeleton height={20} width="80%" />
@@ -150,9 +150,9 @@ export function FeaturedProductsSection() {
           New Arrivals
         </Title>
 
-        <Grid>
+        <Grid gutter={{ base: 20, md: 30 }}>
           {products.map((product) => (
-            <GridCol key={product.id} span={{ base: 12, sm: 6, md: 4, lg: 3 }}>
+            <GridCol key={product.id} span={{ base: 6, md: 4, lg: 3 }}>
               <ProductCard {...formatProductCard(product)} />
             </GridCol>
           ))}

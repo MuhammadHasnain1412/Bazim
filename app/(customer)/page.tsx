@@ -60,10 +60,10 @@ export default function HomePage() {
             <Stack gap={5} align="center">
               <Title
                 order={1}
-                size={rem(72)}
+                fz={{ base: 36, sm: 48, md: 72 }}
                 fw={900}
                 ta="center"
-                lts={2}
+                lts={{ base: 1, md: 2 }}
                 tt="uppercase"
                 style={{
                   lineHeight: 1,
@@ -81,6 +81,7 @@ export default function HomePage() {
               fw={300}
               lts={1}
               c="gray.2"
+              fs="italic"
               style={{ animation: "fadeInUp 1s ease-out 0.4s both" }}
             >
               Experience the finest craftsmanship in men's apparel. Tailored by
@@ -97,7 +98,7 @@ export default function HomePage() {
                 color="dark"
                 size="xl"
                 radius="0"
-                px={50}
+                px={{ base: 20, md: 50 }}
                 fw={700}
                 tt="uppercase"
                 lts={2}

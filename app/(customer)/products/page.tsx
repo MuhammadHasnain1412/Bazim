@@ -155,23 +155,14 @@ function ProductsContent() {
       <>
         <Container size="xl" pt={60}>
           <Stack align="center" gap="xs">
-            <Text
-              size="xs"
-              c="dimmed"
-              tt="uppercase"
-              lts={3}
-              fw={400}
-              style={{ fontFamily: "Georgia, serif" }}
-            >
-              Curated Collections
-            </Text>
             <Title
               order={1}
               c="#2c2c2c"
               tt="uppercase"
-              lts={4}
+              lts={{ base: 2, md: 4 }}
               fw={400}
-              size={48}
+              fz={{ base: 32, md: 48 }}
+              ta="center"
               style={{ fontFamily: "Georgia, serif" }}
             >
               All Products
@@ -188,23 +179,14 @@ function ProductsContent() {
       {/* Hero Section */}
       <Container size="xl" pt={60}>
         <Stack align="center" gap="xs">
-          <Text
-            size="xs"
-            c="dimmed"
-            tt="uppercase"
-            lts={3}
-            fw={400}
-            style={{ fontFamily: "Georgia, serif" }}
-          >
-            Curated Collections
-          </Text>
           <Title
             order={1}
             c="#2c2c2c"
             tt="uppercase"
-            lts={4}
+            lts={{ base: 2, md: 4 }}
             fw={400}
-            size={48}
+            fz={{ base: 32, md: 48 }}
+            ta="center"
             style={{ fontFamily: "Georgia, serif" }}
           >
             All Products
@@ -375,9 +357,9 @@ function ProductsContent() {
               </Group>
 
               {filteredProducts.length > 0 ? (
-                <Grid gutter="xl">
+                <Grid gutter={{ base: 16, md: 30 }}>
                   {filteredProducts.map((product) => (
-                    <GridCol key={product.id} span={{ base: 12, sm: 6, md: 4 }}>
+                    <GridCol key={product.id} span={{ base: 6, md: 4 }}>
                       <ProductCard {...formatProductCard(product)} />
                     </GridCol>
                   ))}
