@@ -110,20 +110,93 @@ export default function AdminAnalyticsPage() {
 
   if (loading) {
     return (
-      <Box
-        style={{
-          minHeight: "100vh",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          backgroundColor: "white",
-        }}
-      >
-        <Stack gap="xl" align="center">
-          <Skeleton height={40} width={200} />
-          <Skeleton height={20} width={150} />
-        </Stack>
-      </Box>
+      <Stack gap={40} pb={60}>
+        <Box>
+          <Skeleton height={34} width={200} mb={4} />
+          <Skeleton height={20} width={300} />
+        </Box>
+
+        <SimpleGrid cols={{ base: 1, md: 2, lg: 4 }} spacing={20}>
+          {Array(4)
+            .fill(0)
+            .map((_, i) => (
+              <Card
+                key={i}
+                padding="lg"
+                radius="md"
+                bg="white"
+                style={{ border: "none" }}
+              >
+                <Stack gap={4}>
+                  <Skeleton height={16} width={100} mb={4} />
+                  <Skeleton height={32} width={120} />
+                </Stack>
+              </Card>
+            ))}
+        </SimpleGrid>
+
+        <SimpleGrid cols={{ base: 1, lg: 2 }} spacing={30}>
+          {Array(2)
+            .fill(0)
+            .map((_, i) => (
+              <Card
+                key={i}
+                padding="xl"
+                radius="md"
+                withBorder={false}
+                bg="transparent"
+              >
+                <Skeleton height={24} width={150} mb="xl" />
+                <Stack gap="sm">
+                  {Array(5)
+                    .fill(0)
+                    .map((_, j) => (
+                      <Group
+                        key={j}
+                        justify="space-between"
+                        py={8}
+                        style={{ borderBottom: "1px solid #f8f9fa" }}
+                      >
+                        <Skeleton height={20} width={150} />
+                        <Skeleton height={20} width={50} />
+                      </Group>
+                    ))}
+                </Stack>
+              </Card>
+            ))}
+        </SimpleGrid>
+
+        <SimpleGrid cols={{ base: 1, lg: 2 }} spacing={30}>
+          {Array(2)
+            .fill(0)
+            .map((_, i) => (
+              <Card
+                key={i}
+                padding="xl"
+                radius="md"
+                withBorder={false}
+                bg="transparent"
+              >
+                <Skeleton height={24} width={150} mb="xl" />
+                <Stack gap="sm">
+                  {Array(5)
+                    .fill(0)
+                    .map((_, j) => (
+                      <Group
+                        key={j}
+                        justify="space-between"
+                        py={8}
+                        style={{ borderBottom: "1px solid #f8f9fa" }}
+                      >
+                        <Skeleton height={20} width={150} />
+                        <Skeleton height={20} width={50} />
+                      </Group>
+                    ))}
+                </Stack>
+              </Card>
+            ))}
+        </SimpleGrid>
+      </Stack>
     );
   }
 

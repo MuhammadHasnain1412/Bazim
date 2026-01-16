@@ -9,6 +9,7 @@ import {
   Paper,
   Text,
   Group,
+  Skeleton,
 } from "@mantine/core";
 import { useEffect, useState } from "react";
 import { safeLocalStorage } from "@/lib/localStorage";
@@ -24,6 +25,7 @@ const statusColors: Record<string, string> = {
 
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchOrders();
@@ -40,6 +42,8 @@ export default function AdminOrdersPage() {
       setOrders(data.orders);
     } catch (error) {
       console.error("Failed to fetch orders:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -74,6 +78,88 @@ export default function AdminOrdersPage() {
     }
   };
 
+  if (loading) {
+    return (
+      <Stack gap="xl">
+        <Skeleton height={29} width={300} mb="xl" />
+
+        {/* Desktop Table Skeleton */}
+        <Paper p={0} bg="transparent" visibleFrom="sm">
+          <Table verticalSpacing="md" withRowBorders={true}>
+            <Table.Thead>
+              <Table.Tr>
+                {Array(6)
+                  .fill(0)
+                  .map((_, i) => (
+                    <Table.Th key={i}>
+                      <Skeleton height={16} width={80} />
+                    </Table.Th>
+                  ))}
+              </Table.Tr>
+            </Table.Thead>
+            <Table.Tbody>
+              {Array(8)
+                .fill(0)
+                .map((_, i) => (
+                  <Table.Tr key={i}>
+                    <Table.Td>
+                      <Skeleton height={20} width={60} />
+                    </Table.Td>
+                    <Table.Td>
+                      <Stack gap={4}>
+                        <Skeleton height={20} width={120} />
+                        <Skeleton height={14} width={150} />
+                      </Stack>
+                    </Table.Td>
+                    <Table.Td>
+                      <Skeleton height={20} width={80} />
+                    </Table.Td>
+                    <Table.Td>
+                      <Skeleton height={26} width={90} radius="sm" />
+                    </Table.Td>
+                    <Table.Td>
+                      <Skeleton height={20} width={100} />
+                    </Table.Td>
+                    <Table.Td>
+                      <Skeleton height={30} width={140} radius="sm" />
+                    </Table.Td>
+                  </Table.Tr>
+                ))}
+            </Table.Tbody>
+          </Table>
+        </Paper>
+
+        {/* Mobile Card Skeleton */}
+        <Stack hiddenFrom="sm" gap="md">
+          {Array(4)
+            .fill(0)
+            .map((_, i) => (
+              <Paper key={i} p="md" radius="md" withBorder bg="white">
+                <Stack gap="sm">
+                  <Group justify="space-between" align="center">
+                    <Skeleton height={20} width={60} />
+                    <Skeleton height={24} width={80} radius="xl" />
+                  </Group>
+
+                  <Stack gap={4}>
+                    <Skeleton height={20} width={150} />
+                    <Skeleton height={14} width={180} />
+                  </Stack>
+
+                  <Group justify="space-between" align="center">
+                    <Skeleton height={20} width={80} />
+                    <Skeleton height={14} width={100} />
+                  </Group>
+
+                  <Skeleton height={30} width="100%" radius="sm" mt="xs" />
+                </Stack>
+              </Paper>
+            ))}
+        </Stack>
+      </Stack>
+    );
+  }
+
   return (
     <Stack gap="xl">
       <Title order={2} fw={600} lts={1} tt="uppercase" size={24}>
@@ -81,7 +167,8 @@ export default function AdminOrdersPage() {
       </Title>
 
       <Paper p={0} bg="transparent">
-        <Table verticalSpacing="md" withRowBorders={true}>
+        {/* Desktop Table View */}
+        <Table verticalSpacing="md" withRowBorders={true} visibleFrom="sm">
           <Table.Thead>
             <Table.Tr>
               <Table.Th>
@@ -175,6 +262,60 @@ export default function AdminOrdersPage() {
             ))}
           </Table.Tbody>
         </Table>
+
+        {/* Mobile Card View */}
+        <Stack hiddenFrom="sm" gap="md">
+          {orders.map((order: any) => (
+            <Paper key={order.id} p="md" radius="md" withBorder bg="gray.0">
+              <Stack gap="sm">
+                <Group justify="space-between" align="center">
+                  <Text fw={700} size="sm">
+                    #{order.id.slice(0, 8)}
+                  </Text>
+                  <Badge
+                    color={statusColors[order.status]}
+                    variant="light"
+                    size="sm"
+                  >
+                    {order.status}
+                  </Badge>
+                </Group>
+
+                <Stack gap={2}>
+                  <Text size="sm" fw={500}>
+                    {order.shippingName || order.user?.name || "Guest"}
+                  </Text>
+                  <Text size="xs" c="dimmed">
+                    {order.user?.email || "Guest Order"}
+                  </Text>
+                </Stack>
+
+                <Group justify="space-between" align="center">
+                  <Text fw={600}>Rs {Number(order.total).toFixed(0)}</Text>
+                  <Text size="xs" c="dimmed">
+                    {new Date(order.createdAt).toLocaleDateString()}
+                  </Text>
+                </Group>
+
+                <Select
+                  value={order.status}
+                  onChange={(value) => updateOrderStatus(order.id, value!)}
+                  data={[
+                    { value: "PENDING", label: "Pending" },
+                    { value: "PROCESSING", label: "Processing" },
+                    { value: "SHIPPED", label: "Shipped" },
+                    { value: "DELIVERED", label: "Delivered" },
+                    { value: "CANCELLED", label: "Cancelled" },
+                  ]}
+                  size="xs"
+                  radius="sm"
+                  allowDeselect={false}
+                  mt="xs"
+                />
+              </Stack>
+            </Paper>
+          ))}
+        </Stack>
       </Paper>
     </Stack>
   );

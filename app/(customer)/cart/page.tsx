@@ -113,16 +113,17 @@ export default function CartPage() {
               <Divider mb="xl" color="gray.2" />
               {items.map((item) => (
                 <Box key={item.id} mb="xl">
-                  <Group
-                    justify="space-between"
-                    align="flex-start"
-                    wrap="nowrap"
-                  >
-                    <Group gap="xl" align="flex-start" style={{ flex: 1 }}>
+                  <Group justify="space-between" align="start" wrap="nowrap">
+                    <Group
+                      gap="lg"
+                      align="flex-start"
+                      style={{ flex: 1 }}
+                      wrap="nowrap"
+                    >
                       <Box
                         bg="gray.0"
                         style={{
-                          width: 140,
+                          width: "clamp(100px, 25vw, 140px)",
                           aspectRatio: "3/4",
                           overflow: "hidden",
                           flexShrink: 0,
@@ -137,41 +138,75 @@ export default function CartPage() {
                         />
                       </Box>
 
-                      <Stack gap="xs" style={{ flex: 1 }}>
-                        <Box>
+                      <Stack
+                        gap="xs"
+                        style={{
+                          flex: 1,
+                          height: "100%",
+                          justifyContent: "space-between",
+                        }}
+                      >
+                        <Stack gap={4}>
                           <Text
                             fw={700}
-                            size="lg"
+                            size="lg" // Responsive size actually handled by clamp or media queries usually, but "lg" is okay
                             tt="uppercase"
                             lts={1}
                             component={Link}
                             href={`/products/${item.productId}`}
                             c="dark"
-                            style={{ textDecoration: "none" }}
+                            style={{
+                              textDecoration: "none",
+                              fontSize: "clamp(16px, 4vw, 20px)",
+                            }}
                           >
                             {item.name}
                           </Text>
-                          <Text
-                            size="xs"
-                            c="dimmed"
-                            tt="uppercase"
-                            lts={0.5}
-                            mt={4}
-                          >
+                          <Text size="xs" c="dimmed" tt="uppercase" lts={0.5}>
                             Unstitched Collection
                           </Text>
-                        </Box>
+                        </Stack>
 
-                        <Text fw={700} size="md" mt="auto">
-                          Rs {Number(item.price).toLocaleString()}
-                        </Text>
+                        {/* Mobile: Quantity and Price Stacked */}
+                        <Stack gap="md" mt="auto">
+                          <Text fw={700} size="md">
+                            Rs {Number(item.price).toLocaleString()}
+                          </Text>
+                          <Group gap="sm" visibleFrom="xs">
+                            <ActionIcon
+                              variant="transparent"
+                              color="dark"
+                              size="sm"
+                              onClick={() =>
+                                updateQuantity(item.id, item.quantity - 1)
+                              }
+                            >
+                              <IconMinus size={14} />
+                            </ActionIcon>
+                            <Text size="sm" fw={600} w={30} ta="center">
+                              {item.quantity}
+                            </Text>
+                            <ActionIcon
+                              variant="transparent"
+                              color="dark"
+                              size="sm"
+                              disabled={lowStockItems.has(item.productId)}
+                              onClick={() =>
+                                updateQuantity(item.id, item.quantity + 1)
+                              }
+                            >
+                              <IconPlus size={14} />
+                            </ActionIcon>
+                          </Group>
+                        </Stack>
                       </Stack>
                     </Group>
 
+                    {/* Right Side Actions - Hidden on very small screens if we move functionality to left */}
                     <Stack
                       align="flex-end"
                       justify="space-between"
-                      style={{ height: 140 }}
+                      style={{ height: "clamp(133px, 20vw, 140px)" }}
                     >
                       <ActionIcon
                         variant="transparent"
@@ -184,12 +219,51 @@ export default function CartPage() {
                         <IconTrash size={20} stroke={1.5} />
                       </ActionIcon>
 
+                      {/* Mobile Quantity Selector (Duplicate for Mobile Layout if needed, or unify) */}
+                      {/* Let's keep the existing structure but hide this group on mobile if we moved it inside */}
                       <Group
                         gap={5}
                         style={{
                           border: "1px solid var(--mantine-color-gray-2)",
                           padding: "4px",
                         }}
+                        hiddenFrom="xs"
+                      >
+                        {/* Mobile only compact quantity controls */}
+                        <ActionIcon
+                          variant="transparent"
+                          color="dark"
+                          size="xs"
+                          onClick={() =>
+                            updateQuantity(item.id, item.quantity - 1)
+                          }
+                        >
+                          <IconMinus size={12} />
+                        </ActionIcon>
+                        <Text size="xs" fw={600} w={20} ta="center">
+                          {item.quantity}
+                        </Text>
+                        <ActionIcon
+                          variant="transparent"
+                          color="dark"
+                          size="xs"
+                          disabled={lowStockItems.has(item.productId)}
+                          onClick={() =>
+                            updateQuantity(item.id, item.quantity + 1)
+                          }
+                        >
+                          <IconPlus size={12} />
+                        </ActionIcon>
+                      </Group>
+
+                      {/* Desktop Quantity Selector */}
+                      <Group
+                        gap={5}
+                        style={{
+                          border: "1px solid var(--mantine-color-gray-2)",
+                          padding: "4px",
+                        }}
+                        visibleFrom="xs"
                       >
                         <ActionIcon
                           variant="transparent"
@@ -275,10 +349,11 @@ export default function CartPage() {
                     size="xl"
                     radius="0"
                     tt="uppercase"
-                    lts={2}
+                    lts={{ base: 1, sm: 2 }}
                     fw={700}
                     rightSection={<IconArrowRight size={18} />}
-                    style={{ height: 60 }}
+                    style={{ height: 60, paddingLeft: 10, paddingRight: 10 }}
+                    styles={{ section: { marginLeft: 8 } }}
                     disabled={hasLowStockItems}
                   >
                     Checkout

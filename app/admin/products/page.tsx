@@ -172,7 +172,13 @@ export default function AdminProductsPage() {
             maw={400}
           />
 
-          <Table verticalSpacing="md" withRowBorders={true} highlightOnHover>
+          {/* Desktop Table View */}
+          <Table
+            verticalSpacing="md"
+            withRowBorders={true}
+            highlightOnHover
+            visibleFrom="sm"
+          >
             <Table.Thead>
               <Table.Tr>
                 <Table.Th>
@@ -300,6 +306,99 @@ export default function AdminProductsPage() {
               })}
             </Table.Tbody>
           </Table>
+
+          {/* Mobile Card View */}
+          <Stack hiddenFrom="sm" gap="md">
+            {filteredProducts.map((product: any) => {
+              const images = product.images || [];
+              const mainImage = images.length > 0 ? images[0].id : null;
+
+              return (
+                <Paper key={product.id} p="md" radius="md" withBorder>
+                  <Group justify="space-between" align="start" mb="sm">
+                    <Group gap="sm">
+                      <Box
+                        w={48}
+                        h={48}
+                        bg="gray.1"
+                        style={{
+                          borderRadius: "8px",
+                          overflow: "hidden",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                      >
+                        {mainImage ? (
+                          <Image
+                            src={`/api/upload?id=${mainImage}`}
+                            alt={product.name}
+                            fit="cover"
+                          />
+                        ) : (
+                          <IconPackage size={20} color="gray" />
+                        )}
+                      </Box>
+                      <div>
+                        <Text fw={600} size="sm" lineClamp={1}>
+                          {product.name}
+                        </Text>
+                        <Text size="xs" c="dimmed">
+                          {product.fabricType || "Premium"}
+                        </Text>
+                      </div>
+                    </Group>
+
+                    <Group gap="xs">
+                      <ActionIcon
+                        variant="subtle"
+                        color="dark"
+                        size="md"
+                        onClick={() =>
+                          router.push(`/admin/products/${product.id}/edit`)
+                        }
+                      >
+                        <IconPencil size={18} stroke={1.5} />
+                      </ActionIcon>
+                      <ActionIcon
+                        variant="subtle"
+                        color="red.8"
+                        size="md"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          openDeleteModal(product.id, product.name);
+                        }}
+                      >
+                        <IconTrash size={18} stroke={1.5} />
+                      </ActionIcon>
+                    </Group>
+                  </Group>
+
+                  <Group justify="space-between" align="center" mt="md">
+                    <Stack gap={0}>
+                      <Text size="sm" fw={700}>
+                        Rs {Number(product.price).toLocaleString()}
+                      </Text>
+                      <Text size="xs" c="dimmed">
+                        Stock: {product.stock}
+                      </Text>
+                    </Stack>
+
+                    <Badge
+                      color={product.stock > 0 ? "green.6" : "red.6"}
+                      variant="dot"
+                      size="sm"
+                      fw={700}
+                      tt="uppercase"
+                    >
+                      {product.stock > 0 ? "In Stock" : "Out of Stock"}
+                    </Badge>
+                  </Group>
+                </Paper>
+              );
+            })}
+          </Stack>
 
           {!loading && filteredProducts.length === 0 && (
             <Stack align="center" py={60} gap="xs">

@@ -8,12 +8,16 @@ import {
   Button,
   Anchor,
   Paper,
+  Burger,
+  Drawer,
+  Stack,
 } from "@mantine/core";
 import { IconLogout } from "@tabler/icons-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { AdminProtected } from "@/components/AdminProtected";
 import { safeLocalStorage } from "@/lib/localStorage";
+import { useDisclosure } from "@mantine/hooks";
 
 export default function AdminLayout({
   children,
@@ -22,6 +26,7 @@ export default function AdminLayout({
 }) {
   const pathname = usePathname();
   const router = useRouter();
+  const [opened, { toggle, close }] = useDisclosure();
 
   const links = [
     { label: "Dashboard", href: "/admin" },
@@ -117,20 +122,70 @@ export default function AdminLayout({
                 ))}
               </Group>
 
-              <Button
-                variant="subtle"
-                color="dark"
-                size="xs"
-                tt="uppercase"
-                lts={1}
-                leftSection={<IconLogout size={16} />}
-                onClick={handleLogout}
-              >
-                Logout
-              </Button>
+              <Group>
+                <Button
+                  variant="subtle"
+                  color="dark"
+                  size="xs"
+                  tt="uppercase"
+                  lts={1}
+                  leftSection={<IconLogout size={16} />}
+                  onClick={handleLogout}
+                  visibleFrom="sm"
+                >
+                  Logout
+                </Button>
+
+                <Burger
+                  opened={opened}
+                  onClick={toggle}
+                  hiddenFrom="sm"
+                  size="sm"
+                />
+              </Group>
             </Group>
           </Container>
         </Paper>
+
+        <Drawer
+          opened={opened}
+          onClose={close}
+          size="100%"
+          padding="md"
+          title="Menu"
+          hiddenFrom="sm"
+          zIndex={1000}
+        >
+          <Stack gap="xl" mt="xl">
+            {links.map((link) => (
+              <Anchor
+                key={link.href}
+                component={Link}
+                href={link.href}
+                onClick={close}
+                c={pathname === link.href ? "dark" : "dimmed"}
+                fw={600}
+                tt="uppercase"
+                size="lg"
+                lts={1}
+                underline="never"
+              >
+                {link.label}
+              </Anchor>
+            ))}
+
+            <Button
+              variant="light"
+              color="red"
+              fullWidth
+              mt="xl"
+              leftSection={<IconLogout size={18} />}
+              onClick={handleLogout}
+            >
+              Logout
+            </Button>
+          </Stack>
+        </Drawer>
 
         <Box flex={1} bg="gray.0">
           <Container size="xl" py={40}>

@@ -8,6 +8,7 @@ import {
   Text,
   Group,
   Badge,
+  Skeleton,
 } from "@mantine/core";
 import {
   IconBox,
@@ -124,11 +125,35 @@ export default function AdminDashboard() {
 
   if (loading) {
     return (
-      <Stack gap="xl">
-        <Title order={2} size="h3" tt="uppercase" lts={2} fw={600}>
-          Dashboard
+      <Stack gap={60}>
+        <Title order={2} size="h2" tt="uppercase" lts={2} fw={600} ta="center">
+          Dashboard Overview
         </Title>
-        <Text c="dimmed">Loading...</Text>
+
+        <SimpleGrid cols={{ base: 1, sm: 2, lg: 4 }} spacing="xl">
+          {[...Array(4)].map((_, i) => (
+            <Paper key={i} p="xl" bg="white" radius="md">
+              <Group justify="space-between" mb="xs">
+                <Skeleton height={20} width={100} radius="sm" />
+                <Skeleton height={20} width={20} radius="sm" />
+              </Group>
+              <Skeleton height={40} width={80} radius="sm" />
+            </Paper>
+          ))}
+        </SimpleGrid>
+
+        <SimpleGrid cols={{ base: 1, md: 2 }} spacing="xl">
+          {[...Array(2)].map((_, i) => (
+            <Paper key={i} p="xl" bg="white" radius="md">
+              <Group justify="space-between" mb="xs">
+                <Skeleton height={20} width={150} radius="sm" />
+                <Skeleton height={20} width={20} radius="sm" />
+              </Group>
+              <Skeleton height={40} width={80} radius="sm" />
+              <Skeleton height={16} width={200} mt="xs" radius="sm" />
+            </Paper>
+          ))}
+        </SimpleGrid>
       </Stack>
     );
   }
