@@ -1,17 +1,8 @@
 import { PrismaClient } from "@prisma/client";
-import { PrismaMariaDb } from "@prisma/adapter-mariadb";
-import { createPool } from "mariadb";
 import bcrypt from "bcryptjs";
 import "dotenv/config";
 
 // Replicate the prisma client creation logic to ensure it works in standalone script
-const connectionParams = {
-  host: "localhost",
-  user: "root",
-  password: "", // You might need to adjust this if your local env differs, but usually it reads from .env
-  database: "bazim_clothing",
-  port: 3306,
-};
 
 // More robust env var parsing if needed, but for this script we will try to use the existing client if possible,
 // or just standard vanilla prisma if the adapter is causing issues in scripts (common with experimental adapters).
