@@ -3,22 +3,22 @@ import jwt from "jsonwebtoken";
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
-if (!JWT_SECRET) {
-  throw new Error(
-    "JWT_SECRET environment variable is required. Please set it in your .env file."
-  );
+function getJwtSecret(): string {
+  if (!JWT_SECRET) {
+    throw new Error(
+      "JWT_SECRET environment variable is required. Please set it in your .env file.",
+    );
+  }
+  return JWT_SECRET;
 }
 
-// Type assertion after validation
-const jwtSecret: string = JWT_SECRET;
-
 export function generateToken(userId: string): string {
-  return jwt.sign({ userId }, jwtSecret, { expiresIn: "7d" });
+  return jwt.sign({ userId }, getJwtSecret(), { expiresIn: "7d" });
 }
 
 export function verifyToken(token: string): { userId: string } | null {
   try {
-    const decoded = jwt.verify(token, jwtSecret);
+    const decoded = jwt.verify(token, getJwtSecret());
     if (
       typeof decoded === "object" &&
       decoded !== null &&
@@ -33,7 +33,7 @@ export function verifyToken(token: string): { userId: string } | null {
 }
 
 export function getUserFromRequest(
-  request: NextRequest
+  request: NextRequest,
 ): { userId: string } | null {
   const authHeader = request.headers.get("authorization");
   if (!authHeader?.startsWith("Bearer ")) {
